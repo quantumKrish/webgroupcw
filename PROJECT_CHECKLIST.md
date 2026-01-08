@@ -2,8 +2,8 @@
 
 ## Team Structure (Equal Work Distribution - 33% each)
 - **Adrian**: Complex infrastructure, deployment, cron/email system
-- **Student 2**: Authentication, profile, frontend routing
-- **Student 3**: Items, search, bidding, Q&A
+- **Emir**: Authentication, profile, frontend routing
+- **Krish**: Items, search, bidding, Q&A
 
 ---
 
@@ -14,15 +14,15 @@
 - [ ] Configure Django authentication framework
 - [ ] Setup Gmail account for project emails
 
-### Student 2
+### Emir
 - [ ] Configure Vue Router structure
 - [ ] Setup Pinia global store architecture
 - [ ] Create basic Vue layout/navigation components
 
-### Student 3
-- [ ] Design database models for auction items
-- [ ] Design database models for bids
-- [ ] Design database models for Q&A system
+### Krish
+- [x] Design database models for auction items
+- [x] Design database models for bids
+- [x] Design database models for Q&A system
 
 ---
 
@@ -34,17 +34,17 @@
 - [ ] Build user authentication API endpoints
 - [ ] Add TypeScript interfaces for User model
 
-### Student 2
+### Emir
 - [ ] Create signup Django form and template
 - [ ] Create login Django form and template
 - [ ] Test signup/login flow
 - [ ] Create basic Vue authenticated layout
 
-### Student 3
-- [ ] Create item models and run migrations
-- [ ] Create Bid model and run migrations
-- [ ] Create Q&A models (Question, Reply) and migrations
-- [ ] Add TypeScript interfaces for Item/Bid/Q&A models
+### Krish
+- [x] Create item models and run migrations
+- [x] Create Bid model and run migrations
+- [x] Create Q&A models (Question, Reply) and migrations
+- [x] Add TypeScript interfaces for Item/Bid/Q&A models
 
 ---
 
@@ -56,14 +56,14 @@
 - [ ] Create email templates for winners
 - [ ] Test email sending functionality
 
-### Student 2
+### Emir
 - [ ] Build profile page Vue component
 - [ ] Implement profile edit API endpoint
 - [ ] Add profile image upload field
 - [ ] Connect profile page with Ajax (fetch API)
 - [ ] Test profile updates without page refresh
 
-### Student 3
+### Krish
 - [ ] Create item listing page Vue component
 - [ ] Build item list API endpoint
 - [ ] Build search API endpoint for items
@@ -80,14 +80,14 @@
 - [ ] Test automated email sending to winners
 - [ ] Add error handling for email failures
 
-### Student 2
+### Emir
 - [ ] Integrate Vue Router for all pages
 - [ ] Setup Pinia store for user state
 - [ ] Setup Pinia store for auth state
 - [ ] Add route guards for authenticated pages
 - [ ] Polish navigation and routing
 
-### Student 3
+### Krish
 - [ ] Create "post new item" Vue component
 - [ ] Build POST item API endpoint
 - [ ] Add image upload for items
@@ -105,14 +105,14 @@
 - [ ] Review and ensure all serializers use type hints
 - [ ] Test local build for deployment
 
-### Student 2
+### Emir
 - [ ] Setup Pinia store for items/bids
 - [ ] Add TypeScript type checking to all Vue components
 - [ ] Ensure all interfaces properly typed
 - [ ] Add error handling throughout frontend
 - [ ] Polish UI/UX across all pages
 
-### Student 3
+### Krish
 - [ ] Create individual item detail page
 - [ ] Display current bids and bid history on item page
 - [ ] Create bid Vue component for item page
@@ -130,14 +130,14 @@
 - [ ] Test email sending from deployed app
 - [ ] Code review all backend code
 
-### Student 2
+### Emir
 - [ ] Code review all frontend code
 - [ ] Verify all Ajax calls work correctly
 - [ ] Test Vue Router on all pages
 - [ ] Test Pinia stores update correctly
 - [ ] Fix any frontend bugs found
 
-### Student 3
+### Krish
 - [ ] Build Q&A Vue component for item detail page
 - [ ] Allow users to ask questions on items
 - [ ] Allow item owners to reply to questions
@@ -155,14 +155,14 @@
 - [ ] Verify cron jobs run correctly
 - [ ] Fix any backend bugs found
 
-### Student 2
+### Emir
 - [ ] Create 5 test user accounts
 - [ ] Add profile images for test users
 - [ ] Test all user/profile features
 - [ ] Verify routing works on deployed app
 - [ ] Start writing README (team contributions section)
 
-### Student 3
+### Krish
 - [ ] Create 10+ auction items with images
 - [ ] Add realistic titles, descriptions, prices
 - [ ] Set various auction end dates/times
@@ -180,14 +180,14 @@
 - [ ] Final code review and cleanup
 - [ ] Help finalize README if needed
 
-### Student 2
+### Emir
 - [ ] Final testing of auth flow on deployed app
 - [ ] Final testing of profile features
 - [ ] Final testing of routing/navigation
 - [ ] Add admin credentials to README
 - [ ] Add test user credentials to README
 
-### Student 3
+### Krish
 - [ ] Final testing of items/search on deployed app
 - [ ] Final testing of bidding system
 - [ ] Final testing of Q&A system
@@ -206,7 +206,7 @@
 - Python type hints throughout backend
 - Backend code review & testing
 
-### Student 2 (~33% - Frontend Architecture)
+### Emir (~33% - Frontend Architecture)
 **Focus**: Vue architecture, auth UI, profile features
 - Vue Router configuration & routing
 - Pinia global store setup
@@ -214,7 +214,7 @@
 - Profile page with Ajax editing
 - Frontend type checking & code review
 
-### Student 3 (~34% - Feature Development)
+### Krish (~34% - Feature Development)
 **Focus**: Items, bidding, Q&A systems
 - All database models (Item, Bid, Q&A)
 - Item listing & search with Ajax
