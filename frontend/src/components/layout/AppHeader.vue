@@ -10,8 +10,8 @@
           <button @click="auth.logout()" class="btn btn-outline-danger btn-sm">Logout</button>
         </template>
         <template v-else>
-          <a href="/login/" class="btn btn-outline-primary btn-sm">Login</a>
-          <a href="/signup/" class="btn btn-primary btn-sm ms-2">Sign Up</a>
+          <a href="http://localhost:8000/login/" class="btn btn-outline-primary btn-sm">Login</a>
+          <a href="http://localhost:8000/signup/" class="btn btn-primary btn-sm ms-2">Sign Up</a>
         </template>
       </div>
     </div>
