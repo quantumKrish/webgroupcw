@@ -8,6 +8,3 @@
 import { RouterView } from 'vue-router';
 import AppShell from './components/layout/AppShell.vue';
 </script>
-
-<style scoped>
-</style>

@@ -21,5 +21,8 @@ from django.http import HttpResponse
 from .views import main_spa
 
 urlpatterns = [
-    path('', main_spa),
+    path('', views.main_spa, name='main-spa'),
+    path('signup/', views.signup, name='signup'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
 ]
