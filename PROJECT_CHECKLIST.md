@@ -15,9 +15,9 @@
 - [ ] Setup Gmail account for project emails
 
 ### Emir
-- [ ] Configure Vue Router structure
-- [ ] Setup Pinia global store architecture
-- [ ] Create basic Vue layout/navigation components
+- [x] Configure Vue Router structure
+- [x] Setup Pinia global store architecture
+- [x] Create basic Vue layout/navigation components
 
 ### Krish
 - [x] Design database models for auction items
