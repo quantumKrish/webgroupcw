@@ -35,10 +35,10 @@
 - [ ] Add TypeScript interfaces for User model
 
 ### Emir
-- [ ] Create signup Django form and template
-- [ ] Create login Django form and template
-- [ ] Test signup/login flow
-- [ ] Create basic Vue authenticated layout
+- [x] Create signup Django form and template
+- [x] Create login Django form and template
+- [x] Test signup/login flow
+- [x] Create basic Vue authenticated layout
 
 ### Krish
 - [x] Create item models and run migrations
