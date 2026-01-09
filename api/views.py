@@ -5,6 +5,11 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from .forms import UserSignUpForm, UserLoginForm
 from .models import Profile
+import os
+
+def get_frontend_url():
+    """Helper to get frontend URL from environment or default"""
+    return os.getenv('FRONTEND_URL', 'http://localhost:3000')
 
 def main_spa(request: HttpRequest) -> HttpResponse:
     return render(request, 'api/spa/index.html', {})
@@ -18,7 +23,7 @@ def signup(request: HttpRequest):
             # Create profile automatically
             Profile.objects.create(user=user)
             login(request, user)
-            return redirect('main-spa')
+            return redirect('http://localhost:5173')
     else:
         form = UserSignUpForm()
     return render(request, 'api/signup.html', {'form': form})
@@ -33,7 +38,7 @@ def login_view(request: HttpRequest):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('main-spa')
+                return redirect('http://localhost:5173')
             else:
                 form.add_error(None, "Invalid username or password")
     else:
@@ -43,7 +48,7 @@ def login_view(request: HttpRequest):
 @require_http_methods(["GET"])
 def logout_view(request: HttpRequest):
     logout(request)
-    return redirect('login')
+    return redirect('http://localhost:5173')
 
 @login_required
 @require_http_methods(["GET", "PUT"])
