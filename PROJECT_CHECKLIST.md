@@ -57,11 +57,11 @@
 - [ ] Test email sending functionality
 
 ### Emir
-- [ ] Build profile page Vue component
-- [ ] Implement profile edit API endpoint
-- [ ] Add profile image upload field
-- [ ] Connect profile page with Ajax (fetch API)
-- [ ] Test profile updates without page refresh
+- [x] Build profile page Vue component
+- [x] Implement profile edit API endpoint
+- [x] Add profile image upload field
+- [x] Connect profile page with Ajax (fetch API)
+- [x] Test profile updates without page refresh
 
 ### Krish
 - [ ] Create item listing page Vue component
