@@ -86,16 +86,7 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-
-interface ProfileForm {
-  username: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  date_of_birth: string;
-  profile_image?: File | null;
-  profile_image_preview?: string;
-}
+import type { ProfileForm } from '@/types';
 
 const loading = ref(true);
 const saving = ref(false);
