@@ -1,12 +1,30 @@
 <template>
   <nav class="navbar navbar-expand bg-light border-bottom px-3">
     <div class="navbar-nav gap-3">
-      <RouterLink class="nav-link" :to="{ name: 'Main Page' }">Main</RouterLink>
-      <RouterLink class="nav-link" :to="{ name: 'Other Page' }">Other</RouterLink>
+      <RouterLink
+        class="nav-link" 
+        :class="{ active: $route.name === 'Main Page' }" 
+        :to="{ name: 'Main Page' }"
+        >
+          Main
+        </RouterLink>
+      <RouterLink
+        class="nav-link" 
+        :class="{ active: $route.name === 'Other Page' }" 
+        :to="{ name: 'Other Page' }"
+        >
+          Other
+        </RouterLink>
 
       <div class="ms-auto">
         <template v-if="auth.isAuthenticated">
-          <RouterLink class="nav-link" :to="{ name: 'Profile' }">{{ auth.user?.username }}</RouterLink>
+          <RouterLink 
+            class="nav-link" 
+            :class="{ active: $route.name === 'Profile' }" 
+            :to="{ name: 'Profile' }"
+            >
+              <i class="bi bi-person-circle"></i>{{ auth.user?.username }}
+          </RouterLink>
           <button @click="auth.logout()" class="btn btn-outline-danger btn-sm">Logout</button>
         </template>
         <template v-else>
@@ -19,13 +37,21 @@
 </template>
 
 <script lang="ts" setup>
-import { RouterLink } from 'vue-router';
+import { RouterLink, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { onMounted } from 'vue';
 
 const auth = useAuthStore();
+const $route = useRoute();
 
 onMounted(() => {
   auth.checkAuth();
 });
 </script>
+
+<style scoped>
+.navbar .nav-link.active {
+  font-weight: bold;
+  border-bottom: 2px solid #0d6efd;
+}
+</style>

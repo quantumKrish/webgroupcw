@@ -1,6 +1,7 @@
 // Example of how to use Vue Router
 
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth';
 
 // 1. Define route components.
 // These can be imported from other files
@@ -18,8 +19,28 @@ const router = createRouter({
     routes: [
         { path: '/', name: 'Main Page', component: MainPage },
         { path: '/other/', name: 'Other Page', component: OtherPage },
-        { path: '/profile/', name: 'Profile', component: ProfilePage },
+        { path: '/profile/', name: 'Profile', component: ProfilePage, meta: { requiresAuth: true } },
     ]
 })
+
+// Navigation Guards
+router.beforeEach(async (to, from, next) => {
+    const authStore = useAuthStore();
+
+    // Check if the route requires authentication
+    if (to.meta.requiresAuth) {
+        // If not authenticated, check authentication status
+        if (!authStore.isAuthenticated) {
+            await authStore.checkAuth();
+        }
+
+        // If still not authenticated, redirect to login
+        if (!authStore.isAuthenticated) {
+            window.location.href = '/login/';
+            return;
+        }
+    }
+    next();
+});
 
 export default router

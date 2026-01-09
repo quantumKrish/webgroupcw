@@ -112,6 +112,15 @@ const form = ref<ProfileForm>({
   profile_image_preview: undefined,
 });
 
+
+// Helper function to get CSRF token from cookies
+function getCookie(name: string): string | null {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+  return null;
+}
+
 onMounted(async () => {
   await loadProfile();
 });
@@ -161,15 +170,6 @@ function handleImageUpload(event: Event) {
   }
 }
 
-// Add this helper function at the top of the script
-function getCookie(name: string): string | null {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
-  return null;
-}
-
-// Then update the updateProfile function to include CSRF token:
 async function updateProfile() {
   try {
     saving.value = true;
