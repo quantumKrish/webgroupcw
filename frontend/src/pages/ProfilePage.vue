@@ -161,6 +161,15 @@ function handleImageUpload(event: Event) {
   }
 }
 
+// Add this helper function at the top of the script
+function getCookie(name: string): string | null {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+  return null;
+}
+
+// Then update the updateProfile function to include CSRF token:
 async function updateProfile() {
   try {
     saving.value = true;
@@ -177,9 +186,14 @@ async function updateProfile() {
       formData.append('profile_image', form.value.profile_image);
     }
 
+    const csrfToken = getCookie('csrftoken');
+    
     const response = await fetch('/api/profile/', {
       method: 'PUT',
       credentials: 'include',
+      headers: csrfToken ? {
+        'X-CSRFToken': csrfToken,
+      } : {},
       body: formData,
     });
 
