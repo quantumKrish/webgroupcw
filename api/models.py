@@ -4,6 +4,15 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
+    
+    def __str__(self) -> str:
+        return f"Profile of {self.user.username}"
+
+
 class PageView(models.Model):
     count = models.IntegerField(default=0)
 
@@ -48,25 +57,25 @@ class Bid(models.Model):
 
 class Question(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="questions")
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="questions")
-    content = models.TextField()
+    asker = models.ForeignKey(User, on_delete=models.CASCADE, related_name="questions")
+    text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:
-        return f"Q:{self.id} on item {self.item_id} by {self.author_id}"
+        return f"Question on {self.item_id} by {self.asker_id}"
 
 
 class Reply(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="replies")
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="replies")
-    content = models.TextField()
+    responder = models.ForeignKey(User, on_delete=models.CASCADE, related_name="replies")
+    text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["created_at"]
+        ordering = ["-created_at"]
 
     def __str__(self) -> str:
-        return f"Reply:{self.id} to Q:{self.question_id} by {self.author_id}"
+        return f"Reply to question {self.question_id} by {self.responder_id}"

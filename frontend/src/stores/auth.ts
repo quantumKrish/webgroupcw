@@ -6,6 +6,8 @@ interface User {
   email: string;
 }
 
+const apiUrl = import.meta.env.VITE_API_URL || '';
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null as User | null,
@@ -15,7 +17,7 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async checkAuth() {
       try {
-        const response = await fetch('/api/user/', {
+        const response = await fetch(`${apiUrl}/api/user/`, {
           credentials: 'include',
         });
         if (response.ok) {
@@ -30,7 +32,7 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.user = null;
       this.isAuthenticated = false;
-      window.location.href = '/logout/';
+      window.location.href = `${apiUrl}/logout/`;
     },
   },
 });

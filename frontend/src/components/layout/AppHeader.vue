@@ -6,12 +6,12 @@
 
       <div class="ms-auto">
         <template v-if="auth.isAuthenticated">
-          <span class="nav-link">{{ auth.user?.username }}</span>
+          <RouterLink class="nav-link" :to="{ name: 'Profile' }">{{ auth.user?.username }}</RouterLink>
           <button @click="auth.logout()" class="btn btn-outline-danger btn-sm">Logout</button>
         </template>
         <template v-else>
-          <a href="http://localhost:8000/login/" class="btn btn-outline-primary btn-sm">Login</a>
-          <a href="http://localhost:8000/signup/" class="btn btn-primary btn-sm ms-2">Sign Up</a>
+          <a :href="`${apiUrl}/login/`" class="btn btn-outline-primary btn-sm">Login</a>
+          <a :href="`${apiUrl}/signup/`" class="btn btn-primary btn-sm ms-2">Sign Up</a>
         </template>
       </div>
     </div>
@@ -24,6 +24,7 @@ import { useAuthStore } from '@/stores/auth';
 import { onMounted } from 'vue';
 
 const auth = useAuthStore();
+const apiUrl = import.meta.env.VITE_API_URL || '';
 
 onMounted(() => {
   auth.checkAuth();
