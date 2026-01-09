@@ -106,11 +106,11 @@
 - [ ] Test local build for deployment
 
 ### Emir
-- [ ] Setup Pinia store for items/bids
-- [ ] Add TypeScript type checking to all Vue components
-- [ ] Ensure all interfaces properly typed
-- [ ] Add error handling throughout frontend
-- [ ] Polish UI/UX across all pages
+- [x] Setup Pinia store for items/bids
+- [x] Add TypeScript type checking to all Vue components
+- [x] Ensure all interfaces properly typed
+- [x] Add error handling throughout frontend
+- [x] Polish UI/UX across all pages
 
 ### Krish
 - [ ] Create individual item detail page
