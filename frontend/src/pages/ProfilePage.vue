@@ -189,7 +189,7 @@ async function updateProfile() {
     const csrfToken = getCookie('csrftoken');
     
     const response = await fetch('/api/profile/', {
-      method: 'PUT',
+      method: 'POST',
       credentials: 'include',
       headers: csrfToken ? {
         'X-CSRFToken': csrfToken,

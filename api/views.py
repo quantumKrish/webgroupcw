@@ -48,7 +48,7 @@ def logout_view(request: HttpRequest):
     return redirect(get_frontend_url())
 
 @login_required
-@require_http_methods(["GET", "PUT"])
+@require_http_methods(["GET", "POST"])  # Change PUT to POST
 def profile(request: HttpRequest):
     user = request.user
     profile, _ = Profile.objects.get_or_create(user=user)
@@ -65,6 +65,7 @@ def profile(request: HttpRequest):
             "profile_image_url": profile_image_url,
         })
 
+    # POST method - update profile
     try:
         user.email = request.POST.get("email", user.email)
         user.first_name = request.POST.get("first_name", user.first_name)
@@ -72,8 +73,9 @@ def profile(request: HttpRequest):
         user.save()
 
         dob = request.POST.get("date_of_birth")
-        profile.date_of_birth = dob or None
-
+        if dob:
+            profile.date_of_birth = dob
+        
         if "profile_image" in request.FILES:
             if profile.profile_image:
                 profile.profile_image.delete()
@@ -88,7 +90,7 @@ def profile(request: HttpRequest):
             "email": user.email,
             "first_name": user.first_name,
             "last_name": user.last_name,
-            "date_of_birth": profile.date_of_birth or "",
+            "date_of_birth": str(profile.date_of_birth) if profile.date_of_birth else "",
             "profile_image_url": profile_image_url,
         })
     except Exception as e:
