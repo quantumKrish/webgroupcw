@@ -81,11 +81,11 @@
 - [ ] Add error handling for email failures
 
 ### Emir
-- [ ] Integrate Vue Router for all pages
-- [ ] Setup Pinia store for user state
-- [ ] Setup Pinia store for auth state
-- [ ] Add route guards for authenticated pages
-- [ ] Polish navigation and routing
+- [x] Integrate Vue Router for all pages
+- [x] Setup Pinia store for user state
+- [x] Setup Pinia store for auth state
+- [x] Add route guards for authenticated pages
+- [x] Polish navigation and routing
 
 ### Krish
 - [ ] Create "post new item" Vue component
