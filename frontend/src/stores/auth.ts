@@ -6,8 +6,6 @@ interface User {
   email: string;
 }
 
-const apiUrl = import.meta.env.VITE_API_URL || '';
-
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null as User | null,
@@ -17,14 +15,25 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async checkAuth() {
       try {
-        const response = await fetch(`${apiUrl}/api/user/`, {
-          credentials: 'include',
-        });
-        if (response.ok) {
-          this.user = await response.json();
-          this.isAuthenticated = true;
+        const response = await fetch('/api/user/', { credentials: 'include' });
+        const contentType = response.headers.get('content-type') || '';
+
+        if (!response.ok || !contentType.includes('application/json')) {
+          this.user = null;
+          this.isAuthenticated = false;
+          return;
         }
-      } catch (error) {
+
+        const data = await response.json();
+        if (data && data.authenticated !== false) {
+          this.user = data;
+          this.isAuthenticated = true;
+        } else {
+          this.user = null;
+          this.isAuthenticated = false;
+        }
+      } catch {
+        this.user = null;
         this.isAuthenticated = false;
       }
     },
@@ -32,7 +41,7 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.user = null;
       this.isAuthenticated = false;
-      window.location.href = `${apiUrl}/logout/`;
+      window.location.href = `/logout/`;
     },
   },
 });

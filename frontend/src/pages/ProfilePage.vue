@@ -86,7 +86,6 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import { useAuthStore } from '@/stores/auth';
 
 interface ProfileForm {
   username: string;
@@ -98,7 +97,6 @@ interface ProfileForm {
   profile_image_preview?: string;
 }
 
-const auth = useAuthStore();
 const loading = ref(true);
 const saving = ref(false);
 const error = ref('');
@@ -114,8 +112,6 @@ const form = ref<ProfileForm>({
   profile_image_preview: undefined,
 });
 
-const apiUrl = import.meta.env.VITE_API_URL || '';
-
 onMounted(async () => {
   await loadProfile();
 });
@@ -125,7 +121,7 @@ async function loadProfile() {
     loading.value = true;
     error.value = '';
     
-    const response = await fetch(`${apiUrl}/api/profile/`, {
+    const response = await fetch('/api/profile/', {
       credentials: 'include',
     });
 
@@ -157,7 +153,6 @@ function handleImageUpload(event: Event) {
     const file = files[0];
     form.value.profile_image = file;
     
-    // Show preview
     const reader = new FileReader();
     reader.onload = (e) => {
       form.value.profile_image_preview = e.target?.result as string;
@@ -182,7 +177,7 @@ async function updateProfile() {
       formData.append('profile_image', form.value.profile_image);
     }
 
-    const response = await fetch(`${apiUrl}/api/profile/`, {
+    const response = await fetch('/api/profile/', {
       method: 'PUT',
       credentials: 'include',
       body: formData,
@@ -197,7 +192,6 @@ async function updateProfile() {
     form.value.profile_image_preview = data.profile_image_url || form.value.profile_image_preview;
     successMessage.value = 'Profile updated successfully!';
     
-    // Clear message after 3 seconds
     setTimeout(() => {
       successMessage.value = '';
     }, 3000);

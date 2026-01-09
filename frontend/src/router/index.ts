@@ -18,7 +18,7 @@ const router = createRouter({
     routes: [
         { path: '/', name: 'Main Page', component: MainPage },
         { path: '/other/', name: 'Other Page', component: OtherPage },
-        { path: '/profile/', name: 'Profile Page', component: ProfilePage },
+        { path: '/profile/', name: 'Profile', component: ProfilePage },
     ]
 })
 
