@@ -18,8 +18,11 @@ from django.contrib import admin
 from django.urls import include, path
 from django.http import HttpResponse
 
-from .views import main_spa
+from .views import main_spa, item_list, item_create, bid_create
 
 urlpatterns = [
     path('', main_spa),
+    path('api/items/', item_list, name='item_list'),
+    path('api/items/create/', item_create, name='item_create'),
+    path('api/bids/create/', bid_create, name='bid_create'),
 ]

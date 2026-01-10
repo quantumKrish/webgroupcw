@@ -64,11 +64,11 @@
 - [ ] Test profile updates without page refresh
 
 ### Krish
-- [ ] Create item listing page Vue component
-- [ ] Build item list API endpoint
-- [ ] Build search API endpoint for items
-- [ ] Implement search functionality with Ajax
-- [ ] Test search without page refresh
+- [x] Create item listing page Vue component
+- [x] Build item list API endpoint
+- [x] Build search API endpoint for items
+- [x] Implement search functionality with Ajax
+- [x] Test search without page refresh
 
 ---
 
@@ -88,11 +88,11 @@
 - [ ] Polish navigation and routing
 
 ### Krish
-- [ ] Create "post new item" Vue component
-- [ ] Build POST item API endpoint
-- [ ] Add image upload for items
-- [ ] Build bidding API endpoint (POST bid)
-- [ ] Add bid validation (amount > current bid)
+- [x] Create "post new item" Vue component
+- [x] Build POST item API endpoint
+- [x] Add image upload for items
+- [x] Build bidding API endpoint (POST bid)
+- [x] Add bid validation (amount > current bid)
 
 ---
 
