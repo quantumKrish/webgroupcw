@@ -44,6 +44,7 @@ export interface Bid {
   id: number;
   item: number; // item id
   bidder: number; // user id
+  bidder_name: string; // username
   amount: string; // decimal as string
   created_at: string; // ISO datetime
 }
@@ -52,6 +53,8 @@ export interface Question {
   id: number;
   item: number; // item id
   author: number; // user id
+  asker: number; // user id (same as author, for compatibility)
+  asker_name: string; // username
   content: string;
   created_at: string; // ISO datetime
 }
@@ -60,6 +63,7 @@ export interface Reply {
   id: number;
   question: number; // question id
   author: number; // user id
+  author_name: string; // username
   content: string;
   created_at: string; // ISO datetime
 }
