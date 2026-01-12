@@ -1,3 +1,30 @@
+// User types
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+}
+
+// Profile types
+export interface Profile {
+  user: number;
+  profile_image?: string;
+  date_of_birth?: string;
+}
+
+export interface ProfileForm {
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  date_of_birth: string;
+  profile_image?: File | null;
+  profile_image_preview?: string;
+}
+
+// Item types
 export interface Item {
   id: number;
   owner: number; // user id
@@ -34,4 +61,16 @@ export interface Reply {
   author: number; // user id
   content: string;
   created_at: string; // ISO datetime
+}
+
+// API Response types
+export interface ApiError {
+  error: string;
+  details?: Record<string, string[]>;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
 }

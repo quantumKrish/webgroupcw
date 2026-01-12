@@ -15,9 +15,9 @@
 - [ ] Setup Gmail account for project emails
 
 ### Emir
-- [ ] Configure Vue Router structure
-- [ ] Setup Pinia global store architecture
-- [ ] Create basic Vue layout/navigation components
+- [x] Configure Vue Router structure
+- [x] Setup Pinia global store architecture
+- [x] Create basic Vue layout/navigation components
 
 ### Krish
 - [x] Design database models for auction items
@@ -35,10 +35,10 @@
 - [ ] Add TypeScript interfaces for User model
 
 ### Emir
-- [ ] Create signup Django form and template
-- [ ] Create login Django form and template
-- [ ] Test signup/login flow
-- [ ] Create basic Vue authenticated layout
+- [x] Create signup Django form and template
+- [x] Create login Django form and template
+- [x] Test signup/login flow
+- [x] Create basic Vue authenticated layout
 
 ### Krish
 - [x] Create item models and run migrations
@@ -57,11 +57,11 @@
 - [ ] Test email sending functionality
 
 ### Emir
-- [ ] Build profile page Vue component
-- [ ] Implement profile edit API endpoint
-- [ ] Add profile image upload field
-- [ ] Connect profile page with Ajax (fetch API)
-- [ ] Test profile updates without page refresh
+- [x] Build profile page Vue component
+- [x] Implement profile edit API endpoint
+- [x] Add profile image upload field
+- [x] Connect profile page with Ajax (fetch API)
+- [x] Test profile updates without page refresh
 
 ### Krish
 - [x] Create item listing page Vue component
@@ -81,11 +81,11 @@
 - [ ] Add error handling for email failures
 
 ### Emir
-- [ ] Integrate Vue Router for all pages
-- [ ] Setup Pinia store for user state
-- [ ] Setup Pinia store for auth state
-- [ ] Add route guards for authenticated pages
-- [ ] Polish navigation and routing
+- [x] Integrate Vue Router for all pages
+- [x] Setup Pinia store for user state
+- [x] Setup Pinia store for auth state
+- [x] Add route guards for authenticated pages
+- [x] Polish navigation and routing
 
 ### Krish
 - [x] Create "post new item" Vue component
@@ -106,11 +106,11 @@
 - [ ] Test local build for deployment
 
 ### Emir
-- [ ] Setup Pinia store for items/bids
-- [ ] Add TypeScript type checking to all Vue components
-- [ ] Ensure all interfaces properly typed
-- [ ] Add error handling throughout frontend
-- [ ] Polish UI/UX across all pages
+- [x] Setup Pinia store for items/bids
+- [x] Add TypeScript type checking to all Vue components
+- [x] Ensure all interfaces properly typed
+- [x] Add error handling throughout frontend
+- [x] Polish UI/UX across all pages
 
 ### Krish
 - [ ] Create individual item detail page

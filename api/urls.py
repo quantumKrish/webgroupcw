@@ -13,16 +13,22 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.conf import settings
-from django.contrib import admin
 from django.urls import include, path
-from django.http import HttpResponse
-
-from .views import main_spa, item_list, item_create, bid_create
+from . import views
 
 urlpatterns = [
-    path('', main_spa),
-    path('api/items/', item_list, name='item_list'),
-    path('api/items/create/', item_create, name='item_create'),
-    path('api/bids/create/', bid_create, name='bid_create'),
+    # SPA
+    path('', views.main_spa, name='main-spa'),
+    
+    # Auth endpoints (Emir's work)
+    path('signup/', views.signup, name='signup'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+    path('api/profile/', views.profile, name='profile'),
+    path('api/user/', views.user_info, name='user-info'),
+    
+    # Item & Bid endpoints (Krish's work)
+    path('api/items/', views.item_list, name='item_list'),
+    path('api/items/create/', views.item_create, name='item_create'),
+    path('api/bids/create/', views.bid_create, name='bid_create'),
 ]
