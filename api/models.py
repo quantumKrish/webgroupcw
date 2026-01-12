@@ -25,7 +25,8 @@ class Item(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     starting_price = models.DecimalField(max_digits=12, decimal_places=2)
-    image_url = models.URLField(blank=True)
+    image_url = models.URLField(blank=True)  # Legacy field, keeping for compatibility
+    image = models.ImageField(upload_to='item_images/', blank=True, null=True)
     ends_at = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -58,7 +59,7 @@ class Bid(models.Model):
 class Question(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="questions")
     asker = models.ForeignKey(User, on_delete=models.CASCADE, related_name="questions")
-    text = models.TextField()
+    content = models.TextField()  # Changed from 'text' to match API
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -70,8 +71,8 @@ class Question(models.Model):
 
 class Reply(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="replies")
-    responder = models.ForeignKey(User, on_delete=models.CASCADE, related_name="replies")
-    text = models.TextField()
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="replies")  # Changed from 'responder' to match API
+    content = models.TextField()  # Changed from 'text' to match API
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

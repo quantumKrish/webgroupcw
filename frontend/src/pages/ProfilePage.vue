@@ -62,16 +62,30 @@
           </div>
 
           <div class="mb-3">
-            <label for="profile_image" class="form-label">Profile Image</label>
-            <input 
-              type="file" 
-              class="form-control" 
-              id="profile_image" 
-              @change="handleImageUpload"
-              accept="image/*"
+            <label class="form-label">Profile Image</label>
+            <div
+              class="dropzone"
+              :class="{ 'dragover': isDragging, 'has-image': !!form.profile_image_preview }"
+              @dragover.prevent="isDragging = true"
+              @dragleave.prevent="isDragging = false"
+              @drop.prevent="handleDrop"
+              @click="triggerFileInput"
             >
-            <div v-if="form.profile_image_preview" class="mt-2">
-              <img :src="form.profile_image_preview" alt="Profile preview" style="max-width: 200px;">
+              <input
+                ref="fileInput"
+                type="file"
+                accept="image/*"
+                @change="handleImageUpload"
+                style="display: none"
+              />
+              <div v-if="form.profile_image_preview" class="preview">
+                <img :src="form.profile_image_preview" alt="Profile preview" />
+                <button type="button" class="remove-btn" @click.stop="removeImage">✕ Remove</button>
+              </div>
+              <div v-else class="dropzone-content">
+                <p><strong>Drag & drop</strong> an image here</p>
+                <p class="muted">or click to browse</p>
+              </div>
             </div>
           </div>
 
@@ -87,11 +101,16 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
 import type { ProfileForm } from '@/types';
+import { useAuthStore } from '@/stores/auth';
 
 const loading = ref(true);
 const saving = ref(false);
 const error = ref('');
 const successMessage = ref('');
+const auth = useAuthStore();
+
+const isDragging = ref(false);
+const fileInput = ref<HTMLInputElement | null>(null);
 
 const form = ref<ProfileForm>({
   username: '',
@@ -161,6 +180,29 @@ function handleImageUpload(event: Event) {
   }
 }
 
+function triggerFileInput() {
+  fileInput.value?.click();
+}
+
+function handleDrop(event: DragEvent) {
+  isDragging.value = false;
+  const file = event.dataTransfer?.files?.[0];
+  if (file && file.type.startsWith('image/')) {
+    form.value.profile_image = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      form.value.profile_image_preview = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function removeImage() {
+  form.value.profile_image = null;
+  form.value.profile_image_preview = undefined;
+  if (fileInput.value) fileInput.value.value = '';
+}
+
 async function updateProfile() {
   try {
     saving.value = true;
@@ -195,6 +237,15 @@ async function updateProfile() {
 
     const data = await response.json();
     form.value.profile_image_preview = data.profile_image_url || form.value.profile_image_preview;
+    if (auth.user) {
+      auth.user = {
+        ...auth.user,
+        profile_image_url: data.profile_image_url || null,
+        email: data.email ?? auth.user.email,
+        first_name: data.first_name ?? auth.user.first_name,
+        last_name: data.last_name ?? auth.user.last_name,
+      };
+    }
     successMessage.value = 'Profile updated successfully!';
     
     setTimeout(() => {
@@ -207,3 +258,65 @@ async function updateProfile() {
   }
 }
 </script>
+
+<style scoped>
+.container {
+  max-width: 720px;
+}
+
+.dropzone {
+  border: 2px dashed #cbd5e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #f9fafb;
+}
+
+.dropzone:hover {
+  border-color: #0d6efd;
+  background: #eef2ff;
+}
+
+.dropzone.dragover {
+  border-color: #0d6efd;
+  background: #e0e7ff;
+}
+
+.dropzone.has-image {
+  padding: 0.5rem;
+  border: 2px solid #e5e7eb;
+}
+
+.dropzone-content {
+  color: #6b7280;
+}
+
+.preview {
+  position: relative;
+}
+
+.preview img {
+  max-width: 100%;
+  max-height: 240px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  background: rgba(220, 38, 38, 0.9);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.remove-btn:hover { background: #b91c1c; }
+</style>

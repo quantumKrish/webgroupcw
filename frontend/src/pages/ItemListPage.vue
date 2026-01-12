@@ -21,10 +21,11 @@
 
     <!-- Items grid -->
     <div v-if="!loading && !error" class="items-grid">
-      <div 
+      <RouterLink 
         v-for="item in items" 
         :key="item.id" 
         class="item-card"
+        :to="{ name: 'Item Detail', params: { id: item.id } }"
       >
         <div v-if="item.image_url" class="item-image">
           <img :src="item.image_url" :alt="item.title" />
@@ -37,7 +38,7 @@
             <span class="ends">Ends: {{ formatDate(item.ends_at) }}</span>
           </div>
         </div>
-      </div>
+      </RouterLink>
       
       <div v-if="items.length === 0" class="no-items">
         No items found{{ searchQuery ? ' matching your search' : '' }}.
@@ -48,10 +49,12 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { RouterLink } from 'vue-router';
 import type { Item } from '../types';
 
 export default defineComponent({
   name: 'ItemListPage',
+  components: { RouterLink },
   
   data() {
     return {
@@ -159,14 +162,18 @@ h1 {
 }
 
 .item-card {
+  display: block;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   overflow: hidden;
-  transition: box-shadow 0.2s;
+  transition: box-shadow 0.2s, transform 0.15s ease;
+  color: inherit;
+  text-decoration: none;
 }
 
 .item-card:hover {
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
 }
 
 .item-image {

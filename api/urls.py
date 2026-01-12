@@ -30,5 +30,9 @@ urlpatterns = [
     # Item & Bid endpoints (Krish's work)
     path('api/items/', views.item_list, name='item_list'),
     path('api/items/create/', views.item_create, name='item_create'),
+    path('api/items/<int:item_id>/', views.item_detail, name='item_detail'),
+    path('api/items/<int:item_id>/delete/', views.item_delete, name='item_delete'),
     path('api/bids/create/', views.bid_create, name='bid_create'),
+    path('api/questions/create/', views.question_create, name='question_create'),
+    path('api/replies/create/', views.reply_create, name='reply_create'),
 ]

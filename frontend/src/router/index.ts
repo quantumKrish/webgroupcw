@@ -8,6 +8,9 @@ import { useAuthStore } from '@/stores/auth';
 const MainPage = () => import('../pages/MainPage.vue');
 const OtherPage = () => import('../pages/OtherPage.vue');
 const ProfilePage = () => import('../pages/ProfilePage.vue');
+const ItemListPage = () => import('../pages/ItemListPage.vue');
+const CreateItemPage = () => import('../pages/CreateItemPage.vue');
+const ItemDetailPage = () => import('../pages/ItemDetailPage.vue');
 
 let base = (import.meta.env.MODE == 'development') ? import.meta.env.BASE_URL : ''
 
@@ -19,6 +22,9 @@ const router = createRouter({
     routes: [
         { path: '/', name: 'Main Page', component: MainPage },
         { path: '/other/', name: 'Other Page', component: OtherPage },
+        { path: '/items/', name: 'Items', component: ItemListPage },
+        { path: '/items/create/', name: 'Create Item', component: CreateItemPage },
+        { path: '/items/:id/', name: 'Item Detail', component: ItemDetailPage, props: true },
         { path: '/profile/', name: 'Profile', component: ProfilePage, meta: { requiresAuth: true } },
     ]
 })

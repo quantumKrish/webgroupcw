@@ -17,11 +17,19 @@ from .models import Profile, Item, Bid, Question, Reply
 def get_frontend_url():
     return os.getenv('FRONTEND_URL', 'http://localhost:5173')
 
+def get_image_url(request: HttpRequest, item: Item) -> str:
+    """Build absolute URL for item image."""
+    if item.image:
+        return request.build_absolute_uri(item.image.url)
+    elif item.image_url:
+        return item.image_url
+    return ''
+
 def main_spa(request: HttpRequest) -> HttpResponse:
     return render(request, 'api/spa/index.html', {})
 
 
-# === Auth views (Emir's work) ===
+# === Auth views ===
 
 @require_http_methods(["GET", "POST"])
 def signup(request: HttpRequest):
@@ -64,7 +72,7 @@ def profile(request: HttpRequest):
     profile, _ = Profile.objects.get_or_create(user=user)
 
     if request.method == "GET":
-        profile_image_url = profile.profile_image.url if profile.profile_image else None
+        profile_image_url = request.build_absolute_uri(profile.profile_image.url) if profile.profile_image else None
         return JsonResponse({
             "id": user.id,
             "username": user.username,
@@ -93,7 +101,7 @@ def profile(request: HttpRequest):
 
         profile.save()
 
-        profile_image_url = profile.profile_image.url if profile.profile_image else None
+        profile_image_url = request.build_absolute_uri(profile.profile_image.url) if profile.profile_image else None
         return JsonResponse({
             "success": True,
             "username": user.username,
@@ -112,15 +120,18 @@ def user_info(request: HttpRequest):
     if not request.user.is_authenticated:
         return JsonResponse({'authenticated': False}, status=401)
     user = request.user
+    profile, _ = Profile.objects.get_or_create(user=user)
+    profile_image_url = request.build_absolute_uri(profile.profile_image.url) if profile.profile_image else None
     return JsonResponse({
         'id': user.id,
         'username': user.username,
         'email': user.email,
+        'profile_image_url': profile_image_url,
         'authenticated': True,
     })
 
 
-# === Item & Bid views (Krish's work) ===
+# === Item & Bid views ===
 
 @require_http_methods(["GET"])
 def item_list(request: HttpRequest) -> JsonResponse:
@@ -148,7 +159,7 @@ def item_list(request: HttpRequest) -> JsonResponse:
             'description': item.description,
             'starting_price': str(item.starting_price),
             'current_price': str(item.highest_bid if item.highest_bid else item.starting_price),
-            'image_url': item.image_url or '',
+            'image_url': get_image_url(request, item),
             'ends_at': item.ends_at.isoformat(),
             'created_at': item.created_at.isoformat(),
             'updated_at': item.updated_at.isoformat(),
@@ -160,11 +171,18 @@ def item_list(request: HttpRequest) -> JsonResponse:
 @csrf_exempt
 @require_http_methods(["POST"])
 def item_create(request: HttpRequest) -> JsonResponse:
-    """Create a new auction item."""
-    try:
-        data = json.loads(request.body)
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    """Create a new auction item with image upload support."""
+    # Handle multipart form data (file upload)
+    if request.content_type and 'multipart/form-data' in request.content_type:
+        data = request.POST
+        image_file = request.FILES.get('image')
+    else:
+        # Fallback to JSON for backward compatibility
+        try:
+            data = json.loads(request.body)
+            image_file = None
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid request format'}, status=400)
     
     # Validate required fields
     required = ['title', 'description', 'starting_price', 'ends_at']
@@ -172,15 +190,9 @@ def item_create(request: HttpRequest) -> JsonResponse:
     if missing:
         return JsonResponse({'error': f'Missing fields: {", ".join(missing)}'}, status=400)
     
-    # TODO: Replace with actual authenticated user once auth is ready
-    # Temporarily use first superuser for testing
-    from django.contrib.auth import get_user_model
-    User = get_user_model()
-    owner = User.objects.filter(is_superuser=True).first()
-    if not owner:
-        owner = User.objects.first()
-    if not owner:
-        return JsonResponse({'error': 'No users in database - create superuser first'}, status=400)
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Login required'}, status=401)
+    owner = request.user
     
     try:
         from django.utils.dateparse import parse_datetime
@@ -201,6 +213,11 @@ def item_create(request: HttpRequest) -> JsonResponse:
             ends_at=ends_at,
         )
         
+        # Handle image upload
+        if image_file:
+            item.image = image_file
+            item.save()
+        
         return JsonResponse({
             'id': item.id,
             'owner': item.owner.id,
@@ -208,7 +225,7 @@ def item_create(request: HttpRequest) -> JsonResponse:
             'description': item.description,
             'starting_price': str(item.starting_price),
             'current_price': str(item.starting_price),
-            'image_url': item.image_url,
+            'image_url': get_image_url(request, item),
             'ends_at': item.ends_at.isoformat(),
             'created_at': item.created_at.isoformat(),
             'updated_at': item.updated_at.isoformat(),
@@ -230,20 +247,18 @@ def bid_create(request: HttpRequest) -> JsonResponse:
     if 'item_id' not in data or 'amount' not in data:
         return JsonResponse({'error': 'Missing item_id or amount'}, status=400)
     
-    # TODO: Replace with actual authenticated user once auth is ready
-    # Temporarily use first superuser for testing
-    from django.contrib.auth import get_user_model
-    User = get_user_model()
-    bidder = User.objects.filter(is_superuser=True).first()
-    if not bidder:
-        bidder = User.objects.first()
-    if not bidder:
-        return JsonResponse({'error': 'No users in database - create superuser first'}, status=400)
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Login required'}, status=401)
+    bidder = request.user
     
     try:
         item = Item.objects.get(id=data['item_id'])
     except Item.DoesNotExist:
         return JsonResponse({'error': 'Item not found'}, status=404)
+    
+    # Prevent seller from bidding on their own item
+    if item.owner == bidder:
+        return JsonResponse({'error': 'You cannot bid on your own item'}, status=400)
     
     # Check auction hasn't ended
     if item.ends_at < timezone.now():
@@ -274,96 +289,153 @@ def bid_create(request: HttpRequest) -> JsonResponse:
         }, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
-        form = UserSignUpForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            Profile.objects.create(user=user)
-            login(request, user)
-            return redirect(get_frontend_url())
-    else:
-        form = UserSignUpForm()
-    return render(request, 'api/signup.html', {'form': form})
 
-@require_http_methods(["GET", "POST"])
-def login_view(request: HttpRequest):
-    if request.method == 'POST':
-        form = UserLoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect(get_frontend_url())
-            form.add_error(None, "Invalid username or password")
-    else:
-        form = UserLoginForm()
-    return render(request, 'api/login.html', {'form': form})
+
+# === Item detail, Q&A, and helper endpoints ===
 
 @require_http_methods(["GET"])
-def logout_view(request: HttpRequest):
-    logout(request)
-    return redirect(get_frontend_url())
-
-@login_required
-@require_http_methods(["GET", "POST"])  # Change PUT to POST
-def profile(request: HttpRequest):
-    user = request.user
-    profile, _ = Profile.objects.get_or_create(user=user)
-
-    if request.method == "GET":
-        profile_image_url = profile.profile_image.url if profile.profile_image else None
-        return JsonResponse({
-            "id": user.id,
-            "username": user.username,
-            "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "date_of_birth": profile.date_of_birth or "",
-            "profile_image_url": profile_image_url,
-        })
-
-    # POST method - update profile
+def item_detail(request: HttpRequest, item_id: int) -> JsonResponse:
+    """Return single item with bids and Q&A."""
     try:
-        user.email = request.POST.get("email", user.email)
-        user.first_name = request.POST.get("first_name", user.first_name)
-        user.last_name = request.POST.get("last_name", user.last_name)
-        user.save()
+        item = Item.objects.get(id=item_id)
+    except Item.DoesNotExist:
+        return JsonResponse({'error': 'Item not found'}, status=404)
 
-        dob = request.POST.get("date_of_birth")
-        if dob:
-            profile.date_of_birth = dob
-        
-        if "profile_image" in request.FILES:
-            if profile.profile_image:
-                profile.profile_image.delete()
-            profile.profile_image = request.FILES["profile_image"]
+    # Highest bid for current price
+    highest_bid = item.bids.aggregate(max_bid=Max('amount')).get('max_bid')
+    current_price = highest_bid if highest_bid else item.starting_price
 
-        profile.save()
+    bids_data = [
+        {
+            'id': b.id,
+            'bidder': b.bidder.id,
+            'bidder_name': b.bidder.username,
+            'amount': str(b.amount),
+            'created_at': b.created_at.isoformat(),
+        }
+        for b in item.bids.order_by('-created_at')
+    ]
 
-        profile_image_url = profile.profile_image.url if profile.profile_image else None
-        return JsonResponse({
-            "success": True,
-            "username": user.username,
-            "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "date_of_birth": str(profile.date_of_birth) if profile.date_of_birth else "",
-            "profile_image_url": profile_image_url,
+    questions_data = []
+    for q in item.questions.order_by('-created_at'):
+        questions_data.append({
+            'id': q.id,
+            'asker': q.asker.id,
+            'asker_name': q.asker.username,
+            'content': q.content,
+            'created_at': q.created_at.isoformat(),
+            'replies': [
+                {
+                    'id': r.id,
+                    'author': r.author.id,
+                    'author_name': r.author.username,
+                    'content': r.content,
+                    'created_at': r.created_at.isoformat(),
+                }
+                for r in q.replies.order_by('created_at')
+            ],
         })
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=400)
 
-@require_http_methods(["GET"])
-def user_info(request: HttpRequest):
-    """Return current user info for auth check without redirecting."""
-    if not request.user.is_authenticated:
-        return JsonResponse({'authenticated': False}, status=401)
-    user = request.user
     return JsonResponse({
-        'id': user.id,
-        'username': user.username,
-        'email': user.email,
-        'authenticated': True,
+        'id': item.id,
+        'owner': item.owner.id,
+        'title': item.title,
+        'description': item.description,
+        'starting_price': str(item.starting_price),
+        'current_price': str(current_price),
+        'image_url': get_image_url(request, item),
+        'ends_at': item.ends_at.isoformat(),
+        'created_at': item.created_at.isoformat(),
+        'updated_at': item.updated_at.isoformat(),
+        'bids': bids_data,
+        'questions': questions_data,
     })
->>>>>>> origin/main
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def question_create(request: HttpRequest) -> JsonResponse:
+    """Create a question for an item."""
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    if 'item_id' not in data or not data.get('content'):
+        return JsonResponse({'error': 'Missing item_id or content'}, status=400)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Login required'}, status=401)
+    asker = request.user
+
+    try:
+        item = Item.objects.get(id=data['item_id'])
+    except Item.DoesNotExist:
+        return JsonResponse({'error': 'Item not found'}, status=404)
+
+    # Prevent seller from asking a question on their own item
+    if item.owner == asker:
+        return JsonResponse({'error': 'You cannot ask a question on your own item'}, status=400)
+
+    question = Question.objects.create(item=item, asker=asker, content=data['content'])
+    return JsonResponse({
+        'id': question.id,
+        'item': item.id,
+        'asker': asker.id,
+        'content': question.content,
+        'created_at': question.created_at.isoformat(),
+    }, status=201)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def reply_create(request: HttpRequest) -> JsonResponse:
+    """Create a reply to a question."""
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    if 'question_id' not in data or not data.get('content'):
+        return JsonResponse({'error': 'Missing question_id or content'}, status=400)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Login required'}, status=401)
+    author = request.user
+
+    try:
+        question = Question.objects.get(id=data['question_id'])
+    except Question.DoesNotExist:
+        return JsonResponse({'error': 'Question not found'}, status=404)
+    
+    # Only the item owner can reply to questions on their item
+    if question.item.owner != author:
+        return JsonResponse({'error': 'Only the item owner can reply to questions'}, status=403)
+
+    reply = Reply.objects.create(question=question, author=author, content=data['content'])
+    return JsonResponse({
+        'id': reply.id,
+        'question': question.id,
+        'author': author.id,
+        'content': reply.content,
+        'created_at': reply.created_at.isoformat(),
+    }, status=201)
+
+
+@csrf_exempt
+@require_http_methods(["DELETE"])
+def item_delete(request: HttpRequest, item_id: int) -> JsonResponse:
+    """Delete an item (only owner can delete)."""
+    try:
+        item = Item.objects.get(id=item_id)
+    except Item.DoesNotExist:
+        return JsonResponse({'error': 'Item not found'}, status=404)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Login required'}, status=401)
+
+    if request.user != item.owner:
+        return JsonResponse({'error': 'Only the owner can delete this item'}, status=403)
+
+    item.delete()
+    return JsonResponse({'success': True, 'message': 'Item deleted'}, status=200)

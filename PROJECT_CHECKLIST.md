@@ -113,11 +113,11 @@
 - [x] Polish UI/UX across all pages
 
 ### Krish
-- [ ] Create individual item detail page
-- [ ] Display current bids and bid history on item page
-- [ ] Create bid Vue component for item page
-- [ ] Implement Question API endpoints (GET, POST)
-- [ ] Implement Reply API endpoints (GET, POST)
+- [x] Create individual item detail page
+- [x] Display current bids and bid history on item page
+- [x] Create bid Vue component for item page
+- [x] Implement Question API endpoints (GET, POST)
+- [x] Implement Reply API endpoints (GET, POST)
 
 ---
 
@@ -138,11 +138,11 @@
 - [ ] Fix any frontend bugs found
 
 ### Krish
-- [ ] Build Q&A Vue component for item detail page
-- [ ] Allow users to ask questions on items
-- [ ] Allow item owners to reply to questions
-- [ ] Display Q&A on item detail page
-- [ ] Test entire item/bid/Q&A flow
+- [x] Build Q&A Vue component for item detail page
+- [x] Allow users to ask questions on items
+- [x] Allow item owners to reply to questions
+- [x] Display Q&A on item detail page
+- [x] Test entire item/bid/Q&A flow
 
 ---
 

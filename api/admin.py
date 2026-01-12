@@ -27,10 +27,10 @@ class BidAdmin(admin.ModelAdmin):
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
     list_display = ("id", "item", "asker", "created_at")
-    search_fields = ("text",)
+    search_fields = ("content",)
 
 
 @admin.register(Reply)
 class ReplyAdmin(admin.ModelAdmin):
-    list_display = ("id", "question", "responder", "created_at")
-    search_fields = ("text",)
+    list_display = ("id", "question", "author", "created_at")
+    search_fields = ("content",)

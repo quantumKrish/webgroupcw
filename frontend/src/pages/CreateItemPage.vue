@@ -2,7 +2,11 @@
   <div class="create-item-page">
     <h1>Post New Auction Item</h1>
 
-    <form @submit.prevent="submitItem" class="item-form">
+    <div v-if="!isLoggedIn" class="placeholder">
+      <p class="muted"><a href="/login/">Log in</a> to post an auction item</p>
+    </div>
+
+    <form v-else @submit.prevent="submitItem" class="item-form">
       <!-- Title -->
       <div class="form-group">
         <label for="title">Title *</label>
@@ -41,15 +45,39 @@
         />
       </div>
 
-      <!-- Image URL -->
+      <!-- Image Upload Drag & Drop -->
       <div class="form-group">
-        <label for="image_url">Image URL</label>
-        <input
-          id="image_url"
-          v-model="form.image_url"
-          type="url"
-          placeholder="https://example.com/image.jpg"
-        />
+        <label>Item Image *</label>
+        <div
+          class="dropzone"
+          :class="{ 'dragover': isDragging, 'has-image': imagePreview }"
+          @dragover.prevent="isDragging = true"
+          @dragleave.prevent="isDragging = false"
+          @drop.prevent="handleDrop"
+          @click="triggerFileInput"
+        >
+          <input
+            ref="fileInput"
+            type="file"
+            accept="image/*"
+            @change="handleFileSelect"
+            style="display: none"
+          />
+          <div v-if="imagePreview" class="preview">
+            <img :src="imagePreview" alt="Preview" />
+            <button type="button" class="remove-btn" @click.stop="removeImage">
+              ✕ Remove
+            </button>
+          </div>
+          <div v-else class="dropzone-content">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+              <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/>
+            </svg>
+            <p><strong>Drag & drop</strong> an image here</p>
+            <p class="muted">or click to browse</p>
+          </div>
+        </div>
       </div>
 
       <!-- End Date/Time -->
@@ -75,7 +103,7 @@
 
       <!-- Submit Button -->
       <div class="form-actions">
-        <button type="submit" :disabled="submitting" class="submit-btn">
+        <button type="submit" :disabled="submitting || !form.image" class="submit-btn">
           {{ submitting ? 'Posting...' : 'Post Item' }}
         </button>
       </div>
@@ -85,19 +113,29 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { useAuthStore } from '@/stores/auth';
+import { computed } from 'vue';
 
 export default defineComponent({
   name: 'CreateItemPage',
   
+  setup() {
+    const auth = useAuthStore();
+    const isLoggedIn = computed(() => auth.isAuthenticated);
+    return { isLoggedIn };
+  },
+
   data() {
     return {
       form: {
         title: '',
         description: '',
         starting_price: '',
-        image_url: '',
+        image: null as File | null,
         ends_at: '',
       },
+      imagePreview: '',
+      isDragging: false,
       submitting: false,
       error: '',
       success: false,
@@ -105,24 +143,64 @@ export default defineComponent({
   },
 
   methods: {
+    triggerFileInput() {
+      (this.$refs.fileInput as HTMLInputElement).click();
+    },
+
+    handleFileSelect(event: Event) {
+      const target = event.target as HTMLInputElement;
+      const file = target.files?.[0];
+      if (file) {
+        this.setImage(file);
+      }
+    },
+
+    handleDrop(event: DragEvent) {
+      this.isDragging = false;
+      const file = event.dataTransfer?.files[0];
+      if (file && file.type.startsWith('image/')) {
+        this.setImage(file);
+      } else {
+        this.error = 'Please drop an image file';
+      }
+    },
+
+    setImage(file: File) {
+      this.form.image = file;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.imagePreview = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    },
+
+    removeImage() {
+      this.form.image = null;
+      this.imagePreview = '';
+      (this.$refs.fileInput as HTMLInputElement).value = '';
+    },
+
     async submitItem() {
+      if (!this.form.image) {
+        this.error = 'Please select an image';
+        return;
+      }
+
       this.submitting = true;
       this.error = '';
       this.success = false;
 
       try {
+        const formData = new FormData();
+        formData.append('title', this.form.title);
+        formData.append('description', this.form.description);
+        formData.append('starting_price', this.form.starting_price);
+        formData.append('ends_at', this.form.ends_at);
+        formData.append('image', this.form.image);
+
         const response = await fetch('/api/items/create/', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            title: this.form.title,
-            description: this.form.description,
-            starting_price: this.form.starting_price,
-            image_url: this.form.image_url,
-            ends_at: this.form.ends_at,
-          }),
+          body: formData,
         });
 
         if (!response.ok) {
@@ -140,15 +218,15 @@ export default defineComponent({
           title: '',
           description: '',
           starting_price: '',
-          image_url: '',
+          image: null,
           ends_at: '',
         };
+        this.imagePreview = '';
 
-        // Optional: redirect after a delay
+        // Redirect after a delay
         setTimeout(() => {
-          // TODO: Use Vue Router to navigate to item list page
-          // this.$router.push('/items');
-        }, 2000);
+          this.$router.push('/items');
+        }, 1500);
 
       } catch (err) {
         this.error = err instanceof Error ? err.message : 'Failed to post item';
@@ -171,6 +249,30 @@ export default defineComponent({
 h1 {
   margin-bottom: 1.5rem;
   color: #333;
+}
+
+.placeholder {
+  padding: 2rem;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  text-align: center;
+}
+
+.placeholder p {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.placeholder a {
+  color: #0d6efd;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.placeholder a:hover {
+  text-decoration: underline;
 }
 
 .item-form {
@@ -249,5 +351,77 @@ h1 {
 .submit-btn:disabled {
   background: #ccc;
   cursor: not-allowed;
+}
+
+.dropzone {
+  border: 2px dashed #cbd5e0;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #f9fafb;
+}
+
+.dropzone:hover {
+  border-color: #4CAF50;
+  background: #f0fdf4;
+}
+
+.dropzone.dragover {
+  border-color: #4CAF50;
+  background: #dcfce7;
+}
+
+.dropzone.has-image {
+  padding: 0;
+  border: 2px solid #e5e7eb;
+}
+
+.dropzone-content {
+  color: #6b7280;
+}
+
+.dropzone-content svg {
+  color: #9ca3af;
+  margin: 0 auto 1rem;
+}
+
+.dropzone-content p {
+  margin: 0.5rem 0;
+}
+
+.dropzone-content .muted {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.preview {
+  position: relative;
+}
+
+.preview img {
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(220, 38, 38, 0.9);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.remove-btn:hover {
+  background: #dc2626;
 }
 </style>

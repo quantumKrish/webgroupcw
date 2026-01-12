@@ -20,6 +20,20 @@
         >
           <i class="bi bi-grid"></i> Browse
         </RouterLink>
+        <RouterLink 
+          class="nav-link px-3" 
+          :class="{ 'active fw-semibold': $route.name === 'Items' }"
+          :to="{ name: 'Items' }"
+        >
+          <i class="bi bi-collection"></i> Items
+        </RouterLink>
+        <RouterLink 
+          class="nav-link px-3" 
+          :class="{ 'active fw-semibold': $route.name === 'Create Item' }"
+          :to="{ name: 'Create Item' }"
+        >
+          <i class="bi bi-plus-circle"></i> Post Item
+        </RouterLink>
 
         <div class="vr mx-2" v-if="auth.isAuthenticated"></div>
 
@@ -29,7 +43,10 @@
             :class="{ 'active fw-semibold': $route.name === 'Profile' }"
             :to="{ name: 'Profile' }"
           >
-            <i class="bi bi-person-circle me-1"></i> 
+            <span class="avatar me-2" v-if="auth.user?.profile_image_url">
+              <img :src="auth.user.profile_image_url" :alt="auth.user.username" />
+            </span>
+            <i v-else class="bi bi-person-circle me-1"></i> 
             <span>{{ auth.user?.username }}</span>
           </RouterLink>
           <button 
@@ -92,5 +109,21 @@ onMounted(() => {
 .vr {
   height: 24px;
   opacity: 0.25;
+}
+
+.avatar {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 </style>

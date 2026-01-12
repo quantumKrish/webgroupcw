@@ -31,7 +31,8 @@ SECRET_KEY = os.getenv(
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+# Enabled for local development so media/profile images are served.
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
