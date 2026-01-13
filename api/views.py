@@ -133,83 +133,107 @@ def user_info(request: HttpRequest):
 
 # === Item & Bid views ===
 
+@csrf_exempt
 @require_http_methods(["GET"])
 def item_list(request: HttpRequest) -> JsonResponse:
     """List all items with optional search query."""
-    search = request.GET.get('search', '').strip()
-    
-    items = Item.objects.all()
-    
-    if search:
-        items = items.filter(
-            Q(title__icontains=search) | Q(description__icontains=search)
-        )
-    
-    # Annotate with current bid
-    items = items.annotate(
-        highest_bid=Max('bids__amount')
-    )
-    
-    data = []
-    for item in items:
-        data.append({
-            'id': item.id,
-            'owner': item.owner.id,
-            'title': item.title,
-            'description': item.description,
-            'starting_price': str(item.starting_price),
-            'current_price': str(item.highest_bid if item.highest_bid else item.starting_price),
-            'image_url': get_image_url(request, item),
-            'ends_at': item.ends_at.isoformat(),
-            'created_at': item.created_at.isoformat(),
-            'updated_at': item.updated_at.isoformat(),
-        })
-    
-    return JsonResponse({'items': data})
+    try:
+        search = request.GET.get('search', '').strip()
+        
+        items = Item.objects.all().order_by('-created_at')
+        
+        if search:
+            items = items.filter(
+                Q(title__icontains=search) | Q(description__icontains=search)
+            )
+        
+        data = []
+        for item in items:
+            try:
+                # Get image URL - only use image_url since image field doesn't exist
+                image_url = ''
+                if item.image:
+                    image_url = request.build_absolute_uri(item.image.url)
+                elif item.image_url:
+                    image_url = item.image_url
+
+                
+                # Get current price (highest bid or starting price)
+                highest_bid = item.bids.all().order_by('-amount').first()
+                current_price = str(highest_bid.amount) if highest_bid else str(item.starting_price)
+                
+                item_data = {
+                    'id': item.id,
+                    'owner': item.owner.id,
+                    'owner_username': item.owner.username,
+                    'title': item.title,
+                    'description': item.description,
+                    'starting_price': str(item.starting_price),
+                    'current_price': current_price,
+                    'image_url': image_url,
+                    'ends_at': item.ends_at.isoformat(),
+                    'created_at': item.created_at.isoformat(),
+                    'updated_at': item.updated_at.isoformat(),
+                }
+                data.append(item_data)
+                
+            except Exception as item_error:
+                print(f"ERROR processing item {item.id}: {item_error}")
+                continue
+        
+        return JsonResponse({'items': data})
+        
+    except Exception as e:
+        print(f"ERROR in item_list: {e}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 @csrf_exempt
 @require_http_methods(["POST"])
+@login_required
 def item_create(request: HttpRequest) -> JsonResponse:
-    """Create a new auction item with image upload support."""
-    # Handle multipart form data (file upload)
-    if request.content_type and 'multipart/form-data' in request.content_type:
-        data = request.POST
-        image_file = request.FILES.get('image')
-    else:
-        # Fallback to JSON for backward compatibility
-        try:
-            data = json.loads(request.body)
-            image_file = None
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid request format'}, status=400)
-    
-    # Validate required fields
-    required = ['title', 'description', 'starting_price', 'ends_at']
-    missing = [f for f in required if not data.get(f)]
-    if missing:
-        return JsonResponse({'error': f'Missing fields: {", ".join(missing)}'}, status=400)
-    
+    """Create a new auction item."""
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'Login required'}, status=401)
-    owner = request.user
     
     try:
+        # Parse form data
+        title = request.POST.get('title', '').strip()
+        description = request.POST.get('description', '').strip()
+        starting_price = request.POST.get('starting_price', '').strip()
+        ends_at_str = request.POST.get('ends_at', '').strip()
+        image_url = request.POST.get('image_url', '').strip()
+        image_file = request.FILES.get('image')
+        
+        # Validate required fields
+        if not all([title, description, starting_price, ends_at_str]):
+            return JsonResponse({
+                'error': 'Missing required fields: title, description, starting_price, ends_at'
+            }, status=400)
+        
+        # Parse datetime
         from django.utils.dateparse import parse_datetime
-        ends_at_str = data['ends_at']
-        # Try parsing ISO format datetime
         ends_at = parse_datetime(ends_at_str)
         if not ends_at:
-            # Fallback: try adding timezone info if missing
-            from datetime import datetime
-            ends_at = datetime.fromisoformat(ends_at_str.replace('Z', '+00:00'))
+            return JsonResponse({'error': 'Invalid date/time format'}, status=400)
         
+        # Validate price
+        try:
+            starting_price_decimal = Decimal(starting_price)
+            if starting_price_decimal <= 0:
+                return JsonResponse({'error': 'Starting price must be greater than 0'}, status=400)
+        except:
+            return JsonResponse({'error': 'Invalid price format'}, status=400)
+        
+        # Create item (image_url is optional)
         item = Item.objects.create(
-            owner=owner,
-            title=data['title'],
-            description=data['description'],
-            starting_price=Decimal(data['starting_price']),
-            image_url=data.get('image_url', ''),
+            owner=request.user,
+            title=title,
+            description=description,
+            starting_price=starting_price_decimal,
+            image_url=image_url,
             ends_at=ends_at,
         )
         
@@ -218,21 +242,60 @@ def item_create(request: HttpRequest) -> JsonResponse:
             item.image = image_file
             item.save()
         
+        # Get final image URL
+        final_image_url = ''
+        if item.image:
+            final_image_url = request.build_absolute_uri(item.image.url)
+        elif item.image_url:
+            final_image_url = item.image_url
+        
         return JsonResponse({
             'id': item.id,
             'owner': item.owner.id,
+            'owner_username': item.owner.username,
             'title': item.title,
             'description': item.description,
             'starting_price': str(item.starting_price),
-            'current_price': str(item.starting_price),
-            'image_url': get_image_url(request, item),
+            'current_price': str(item.current_price),
+            'image_url': final_image_url,
             'ends_at': item.ends_at.isoformat(),
             'created_at': item.created_at.isoformat(),
             'updated_at': item.updated_at.isoformat(),
         }, status=201)
+        
     except Exception as e:
+        print(f"ERROR creating item: {e}")
+        import traceback
+        traceback.print_exc()
         return JsonResponse({'error': str(e)}, status=400)
 
+
+@csrf_exempt
+@require_http_methods(["DELETE"])
+@login_required
+def item_delete(request: HttpRequest, item_id: int) -> JsonResponse:
+    """Delete an item (only by owner)."""
+    try:
+        item = Item.objects.get(id=item_id)
+    except Item.DoesNotExist:
+        return JsonResponse({'error': 'Item not found'}, status=404)
+    
+    # Check if user is the owner
+    if item.owner != request.user:
+        return JsonResponse({'error': 'You do not have permission to delete this item'}, status=403)
+    
+    try:
+        # Delete associated image file if it exists
+        if item.image:
+            item.image.delete()
+        
+        item.delete()
+        return JsonResponse({'success': True, 'message': 'Item deleted successfully'})
+    except Exception as e:
+        print(f"ERROR deleting item: {e}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({'error': str(e)}, status=400)
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -301,56 +364,70 @@ def item_detail(request: HttpRequest, item_id: int) -> JsonResponse:
     except Item.DoesNotExist:
         return JsonResponse({'error': 'Item not found'}, status=404)
 
-    # Highest bid for current price
-    highest_bid = item.bids.aggregate(max_bid=Max('amount')).get('max_bid')
-    current_price = highest_bid if highest_bid else item.starting_price
+    try:
+        # Highest bid for current price
+        highest_bid = item.bids.aggregate(max_bid=Max('amount')).get('max_bid')
+        current_price = highest_bid if highest_bid else item.starting_price
 
-    bids_data = [
-        {
-            'id': b.id,
-            'bidder': b.bidder.id,
-            'bidder_name': b.bidder.username,
-            'amount': str(b.amount),
-            'created_at': b.created_at.isoformat(),
-        }
-        for b in item.bids.order_by('-created_at')
-    ]
+        bids_data = [
+            {
+                'id': b.id,
+                'bidder': b.bidder.id,
+                'bidder_name': b.bidder.username,
+                'amount': str(b.amount),
+                'created_at': b.created_at.isoformat(),
+            }
+            for b in item.bids.order_by('-created_at')
+        ]
 
-    questions_data = []
-    for q in item.questions.order_by('-created_at'):
-        questions_data.append({
-            'id': q.id,
-            'asker': q.asker.id,
-            'asker_name': q.asker.username,
-            'content': q.content,
-            'created_at': q.created_at.isoformat(),
-            'replies': [
-                {
-                    'id': r.id,
-                    'author': r.author.id,
-                    'author_name': r.author.username,
-                    'content': r.content,
-                    'created_at': r.created_at.isoformat(),
-                }
-                for r in q.replies.order_by('created_at')
-            ],
+        questions_data = []
+        for q in item.questions.order_by('-created_at'):
+            questions_data.append({
+                'id': q.id,
+                'asker': q.asker.id,
+                'asker_name': q.asker.username,
+                'text': q.text,  # Changed from 'content' to 'text'
+                'created_at': q.created_at.isoformat(),
+                'replies': [
+                    {
+                        'id': r.id,
+                        'responder': r.responder.id,  # Changed from 'author' to 'responder'
+                        'responder_name': r.responder.username,
+                        'text': r.text,  # Changed from 'content' to 'text'
+                        'created_at': r.created_at.isoformat(),
+                    }
+                    for r in q.replies.order_by('created_at')
+                ],
+            })
+
+        # Get image URL - only use image_url field
+        image_url = ''
+        if item.image:
+            image_url = request.build_absolute_uri(item.image.url)
+        elif item.image_url:
+            image_url = item.image_url
+
+        return JsonResponse({
+            'id': item.id,
+            'owner': item.owner.id,
+            'owner_username': item.owner.username,
+            'title': item.title,
+            'description': item.description,
+            'starting_price': str(item.starting_price),
+            'current_price': str(current_price),
+            'image_url': image_url,
+            'ends_at': item.ends_at.isoformat(),
+            'created_at': item.created_at.isoformat(),
+            'updated_at': item.updated_at.isoformat(),
+            'bids': bids_data,
+            'questions': questions_data,
         })
-
-    return JsonResponse({
-        'id': item.id,
-        'owner': item.owner.id,
-        'title': item.title,
-        'description': item.description,
-        'starting_price': str(item.starting_price),
-        'current_price': str(current_price),
-        'image_url': get_image_url(request, item),
-        'ends_at': item.ends_at.isoformat(),
-        'created_at': item.created_at.isoformat(),
-        'updated_at': item.updated_at.isoformat(),
-        'bids': bids_data,
-        'questions': questions_data,
-    })
-
+    
+    except Exception as e:
+        print(f"ERROR in item_detail: {e}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({'error': str(e)}, status=500)
 
 @csrf_exempt
 @require_http_methods(["POST"])

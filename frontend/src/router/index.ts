@@ -6,7 +6,6 @@ import { useAuthStore } from '@/stores/auth';
 // 1. Define route components.
 // These can be imported from other files
 const MainPage = () => import('../pages/MainPage.vue');
-const OtherPage = () => import('../pages/OtherPage.vue');
 const ProfilePage = () => import('../pages/ProfilePage.vue');
 const ItemListPage = () => import('../pages/ItemListPage.vue');
 const CreateItemPage = () => import('../pages/CreateItemPage.vue');
@@ -21,7 +20,6 @@ const router = createRouter({
     history: createWebHistory(base),
     routes: [
         { path: '/', name: 'Main Page', component: MainPage },
-        { path: '/other/', name: 'Other Page', component: OtherPage },
         { path: '/items/', name: 'Items', component: ItemListPage },
         { path: '/items/create/', name: 'Create Item', component: CreateItemPage },
         { path: '/items/:id/', name: 'Item Detail', component: ItemDetailPage, props: true },

@@ -25,8 +25,8 @@ class Item(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     starting_price = models.DecimalField(max_digits=12, decimal_places=2)
-    image_url = models.URLField(blank=True)  # Legacy field, keeping for compatibility
-    # image = models.ImageField(upload_to='item_images/', blank=True, null=True)
+    image_url = models.URLField(blank=True)  # External URL
+    image = models.ImageField(upload_to='item_images/', blank=True, null=True)
     ends_at = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -41,7 +41,6 @@ class Item(models.Model):
     def current_price(self):
         top = self.bids.order_by("-amount").first()
         return top.amount if top else self.starting_price
-
 
 class Bid(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="bids")

@@ -15,13 +15,6 @@
         </RouterLink>
         <RouterLink 
           class="nav-link px-3" 
-          :class="{ 'active fw-semibold': $route.name === 'Other Page' }"
-          :to="{ name: 'Other Page' }"
-        >
-          <i class="bi bi-grid"></i> Browse
-        </RouterLink>
-        <RouterLink 
-          class="nav-link px-3" 
           :class="{ 'active fw-semibold': $route.name === 'Items' }"
           :to="{ name: 'Items' }"
         >
