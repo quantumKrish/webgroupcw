@@ -32,5 +32,5 @@ urlpatterns = [
     path('api/items/', views.item_list, name='item-list'),
     path('api/items/<int:item_id>/', views.item_detail, name='item-detail'),
     path('api/items/<int:item_id>/delete/', views.item_delete, name='item-delete'),
-    path('api/bids/', views.bid_create, name='bid-create'),
+    path('api/bids/create/', views.bid_create, name='bid-create'),
 ]
