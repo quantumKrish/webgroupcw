@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q, Max
 from django.utils import timezone
+from django.core.mail import send_mail, EmailMessage
+from django.conf import settings 
 from decimal import Decimal
 import json
 from typing import Any
@@ -27,6 +29,21 @@ def get_image_url(request: HttpRequest, item: Item) -> str:
 
 def main_spa(request: HttpRequest) -> HttpResponse:
     return render(request, 'api/spa/index.html', {})
+
+def send_winner_email(
+    to_email: str,
+    item_title: str
+) -> None:
+    subject = "🎉 You won the auction!"
+    message = f"Congratulations! You won the auction for '{item_title}'."
+
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [to_email],
+        fail_silently=False,
+    )
 
 
 # === Auth views ===

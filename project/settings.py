@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/stable/ref/settings/
 """
 
 from . import database
+from huey import MemoryHuey
 import os
 
 from pathlib import Path
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'huey.contrib.djhuey',
     'api',
 ]
 
@@ -93,6 +95,7 @@ DATABASES = {
     'default': database.config()
 }
 
+AUTH_USER_MODEL = 'api.User'
 
 # Password validation
 # https://docs.djangoproject.com/en/stable/ref/settings/#auth-password-validators
@@ -145,3 +148,19 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SAMESITE = 'Lax'
+
+# Email stuff
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = "djangoauctionapp@gmail.com"
+EMAIL_HOST_PASSWORD = "nyzlwyxyiwrpznfm"
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# cron stuff
+HUEY = MemoryHuey(
+    'webgroupcw',
+    always_eager=False,
+)

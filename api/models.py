@@ -1,11 +1,33 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
+from rest_framework import serializers
 
-User = get_user_model()
+class User(AbstractUser):
+    email: models.EmailField = models.EmailField(unique=True)
+    profile_image: models.ImageField = models.ImageField(
+        upload_to="profiles/",
+        blank=True,
+        null=True
+    )
 
+    def __str__(self) -> str:
+        return self.username 
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "profile_image",
+        )
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    user = models.OneToOneField('User', on_delete=models.CASCADE, related_name='profile')
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
     
@@ -30,6 +52,7 @@ class Item(models.Model):
     ends_at = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    winner_email_sent = models.BooleanField(False, default=False)
 
     class Meta:
         ordering = ["-created_at"]
