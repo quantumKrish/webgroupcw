@@ -7,6 +7,7 @@ import { useAuthStore } from '@/stores/auth';
 // These can be imported from other files
 const MainPage = () => import('../pages/MainPage.vue');
 const ProfilePage = () => import('../pages/ProfilePage.vue');
+const ProfileDisplayPage = () => import('../pages/ProfileDisplayPage.vue');
 const ItemListPage = () => import('../pages/ItemListPage.vue');
 const CreateItemPage = () => import('../pages/CreateItemPage.vue');
 const ItemDetailPage = () => import('../pages/ItemDetailPage.vue');
@@ -24,6 +25,7 @@ const router = createRouter({
         { path: '/items/create/', name: 'Create Item', component: CreateItemPage },
         { path: '/items/:id/', name: 'Item Detail', component: ItemDetailPage, props: true },
         { path: '/profile/', name: 'Profile', component: ProfilePage, meta: { requiresAuth: true } },
+        { path: '/users/:id/', name: 'User Profile', component: ProfileDisplayPage, props: true },
     ]
 })
 
