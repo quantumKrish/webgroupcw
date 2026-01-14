@@ -452,35 +452,53 @@ def item_detail(request: HttpRequest, item_id: int) -> JsonResponse:
         highest_bid = item.bids.aggregate(max_bid=Max('amount')).get('max_bid')
         current_price = highest_bid if highest_bid else item.starting_price
 
-        bids_data = [
-            {
+        bids_data = []
+        for b in item.bids.order_by('-created_at'):
+            bidder_profile, _ = Profile.objects.get_or_create(user=b.bidder)
+            bidder_profile_image = ''
+            if bidder_profile.profile_image:
+                bidder_profile_image = request.build_absolute_uri(bidder_profile.profile_image.url)
+            
+            bids_data.append({
                 'id': b.id,
                 'bidder': b.bidder.id,
                 'bidder_name': b.bidder.username,
+                'bidder_profile_image': bidder_profile_image,
                 'amount': str(b.amount),
                 'created_at': b.created_at.isoformat(),
-            }
-            for b in item.bids.order_by('-created_at')
-        ]
+            })
 
         questions_data = []
         for q in item.questions.order_by('-created_at'):
+            asker_profile, _ = Profile.objects.get_or_create(user=q.asker)
+            asker_profile_image = ''
+            if asker_profile.profile_image:
+                asker_profile_image = request.build_absolute_uri(asker_profile.profile_image.url)
+            
+            replies_data = []
+            for r in q.replies.order_by('created_at'):
+                author_profile, _ = Profile.objects.get_or_create(user=r.author)
+                author_profile_image = ''
+                if author_profile.profile_image:
+                    author_profile_image = request.build_absolute_uri(author_profile.profile_image.url)
+                
+                replies_data.append({
+                    'id': r.id,
+                    'author': r.author.id,
+                    'author_name': r.author.username,
+                    'author_profile_image': author_profile_image,
+                    'content': r.content,
+                    'created_at': r.created_at.isoformat(),
+                })
+            
             questions_data.append({
                 'id': q.id,
                 'asker': q.asker.id,
                 'asker_name': q.asker.username,
-                'text': q.text,  # Changed from 'content' to 'text'
+                'asker_profile_image': asker_profile_image,
+                'content': q.content,
                 'created_at': q.created_at.isoformat(),
-                'replies': [
-                    {
-                        'id': r.id,
-                        'responder': r.responder.id,  # Changed from 'author' to 'responder'
-                        'responder_name': r.responder.username,
-                        'text': r.text,  # Changed from 'content' to 'text'
-                        'created_at': r.created_at.isoformat(),
-                    }
-                    for r in q.replies.order_by('created_at')
-                ],
+                'replies': replies_data,
             })
 
         # Get image URL - only use image_url field
@@ -490,10 +508,17 @@ def item_detail(request: HttpRequest, item_id: int) -> JsonResponse:
         elif item.image_url:
             image_url = item.image_url
 
+        # Get owner profile image
+        owner_profile, _ = Profile.objects.get_or_create(user=item.owner)
+        owner_profile_image = ''
+        if owner_profile.profile_image:
+            owner_profile_image = request.build_absolute_uri(owner_profile.profile_image.url)
+
         return JsonResponse({
             'id': item.id,
             'owner': item.owner.id,
             'owner_username': item.owner.username,
+            'owner_profile_image': owner_profile_image,
             'title': item.title,
             'description': item.description,
             'starting_price': str(item.starting_price),
@@ -599,3 +624,60 @@ def item_delete(request: HttpRequest, item_id: int) -> JsonResponse:
 
     item.delete()
     return JsonResponse({'success': True, 'message': 'Item deleted'}, status=200)
+
+
+@csrf_exempt
+@require_http_methods(["DELETE"])
+def question_delete(request: HttpRequest, question_id: int) -> JsonResponse:
+    """Delete a question (only asker can delete)."""
+    try:
+        question = Question.objects.get(id=question_id)
+    except Question.DoesNotExist:
+        return JsonResponse({'error': 'Question not found'}, status=404)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Login required'}, status=401)
+
+    if request.user != question.asker:
+        return JsonResponse({'error': 'Only the asker can delete this question'}, status=403)
+
+    question.delete()
+    return JsonResponse({'success': True, 'message': 'Question deleted'}, status=200)
+
+
+@csrf_exempt
+@require_http_methods(["DELETE"])
+def reply_delete(request: HttpRequest, reply_id: int) -> JsonResponse:
+    """Delete a reply (only author can delete)."""
+    try:
+        reply = Reply.objects.get(id=reply_id)
+    except Reply.DoesNotExist:
+        return JsonResponse({'error': 'Reply not found'}, status=404)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Login required'}, status=401)
+
+    if request.user != reply.author:
+        return JsonResponse({'error': 'Only the author can delete this reply'}, status=403)
+
+    reply.delete()
+    return JsonResponse({'success': True, 'message': 'Reply deleted'}, status=200)
+
+
+@csrf_exempt
+@require_http_methods(["DELETE"])
+def bid_delete(request: HttpRequest, bid_id: int) -> JsonResponse:
+    """Delete a bid (only bidder can delete)."""
+    try:
+        bid = Bid.objects.get(id=bid_id)
+    except Bid.DoesNotExist:
+        return JsonResponse({'error': 'Bid not found'}, status=404)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Login required'}, status=401)
+
+    if request.user != bid.bidder:
+        return JsonResponse({'error': 'Only the bidder can delete this bid'}, status=403)
+
+    bid.delete()
+    return JsonResponse({'success': True, 'message': 'Bid deleted'}, status=200)

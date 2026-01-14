@@ -38,6 +38,11 @@
             <p v-if="user.date_of_birth" class="text-muted">
               <i class="bi bi-calendar"></i> Born: {{ formatDate(user.date_of_birth) }}
             </p>
+            <div v-if="isOwnProfile" class="mt-3">
+              <RouterLink :to="{ name: 'Profile' }" class="btn btn-primary text-white">
+                <i class="bi bi-pencil"></i> Edit Profile
+              </RouterLink>
+            </div>
           </div>
         </div>
 
@@ -111,8 +116,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute, RouterLink } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 
 interface User {
   id: number;
@@ -141,6 +147,7 @@ interface Bid {
 }
 
 const route = useRoute();
+const auth = useAuthStore();
 const loading = ref(true);
 const error = ref('');
 const user = ref<User | null>(null);
@@ -148,6 +155,7 @@ const userItems = ref<Item[]>([]);
 const userBids = ref<Bid[]>([]);
 
 const userId = route.params.id;
+const isOwnProfile = computed(() => auth.user && auth.user.id === Number(userId));
 
 onMounted(async () => {
   await loadUserProfile();

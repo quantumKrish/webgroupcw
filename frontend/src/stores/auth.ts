@@ -8,7 +8,7 @@ export const useAuthStore = defineStore('auth', {
   }),
   
   actions: {
-    async checkAuth() {
+    async checkAuth(): Promise<void> {
       try {
         const response = await fetch('/api/user/', { credentials: 'include' });
         const contentType = response.headers.get('content-type') || '';
@@ -21,7 +21,7 @@ export const useAuthStore = defineStore('auth', {
 
         const data = await response.json();
         if (data && data.authenticated !== false) {
-          this.user = data;
+          this.user = data as User;
           this.isAuthenticated = true;
         } else {
           this.user = null;
@@ -33,10 +33,10 @@ export const useAuthStore = defineStore('auth', {
       }
     },
     
-    logout() {
+    logout(): void {
       this.user = null;
       this.isAuthenticated = false;
-      window.location.href = `/logout/`;
+      window.location.href = '/logout/';
     },
   },
 });

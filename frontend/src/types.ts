@@ -37,6 +37,8 @@ export interface ProfileForm {
 export interface Item {
   id: number;
   owner: number; // user id
+  owner_username?: string; // username
+  owner_profile_image?: string; // profile image URL
   title: string;
   description: string;
   starting_price: string; // decimal as string
@@ -53,6 +55,7 @@ export interface Bid {
   item: number; // item id
   bidder: number; // user id
   bidder_name: string; // username
+  bidder_profile_image?: string; // profile image URL
   amount: string; // decimal as string
   created_at: string; // ISO datetime
 }
@@ -63,6 +66,7 @@ export interface Question {
   author: number; // user id
   asker: number; // user id (same as author, for compatibility)
   asker_name: string; // username
+  asker_profile_image?: string; // profile image URL
   content: string;
   created_at: string; // ISO datetime
 }
@@ -72,6 +76,7 @@ export interface Reply {
   question: number; // question id
   author: number; // user id
   author_name: string; // username
+  author_profile_image?: string; // profile image URL
   content: string;
   created_at: string; // ISO datetime
 }
