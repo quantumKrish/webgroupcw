@@ -10,6 +10,11 @@
         <p class="eyebrow">Ends {{ formatDate(item?.ends_at) }}</p>
         <h1>{{ item?.title }}</h1>
         <p class="description">{{ item?.description }}</p>
+        <p class="owner-info">
+          Seller: <RouterLink :to="{ name: 'User Profile', params: { id: item?.owner } }" class="username-link">
+            {{ item?.owner_username }}
+          </RouterLink>
+        </p>
         <div class="price-row">
           <div>
             <span class="label">Current price</span>
@@ -61,7 +66,9 @@
               <div class="label">${{ bid.amount }}</div>
               <div class="muted">{{ formatDate(bid.created_at) }}</div>
             </div>
-            <span class="pill">{{ bid.bidder_name }}</span>
+            <RouterLink :to="{ name: 'User Profile', params: { id: bid.bidder } }" class="pill">
+              {{ bid.bidder_name }}
+            </RouterLink>
           </li>
         </ul>
       </section>
@@ -98,12 +105,12 @@
           <div v-for="q in item?.questions" :key="q.id" class="qa-item">
             <div class="qa-question">
               <div class="label">Q: {{ q.content }}</div>
-              <div class="muted">Asked by {{ q.asker_name }} • {{ formatDate(q.created_at) }}</div>
+              <div class="muted">Asked by <RouterLink :to="{ name: 'User Profile', params: { id: q.asker } }" class="username-link">{{ q.asker_name }}</RouterLink> • {{ formatDate(q.created_at) }}</div>
             </div>
             <div class="qa-replies" v-if="q.replies?.length">
               <div v-for="r in q.replies" :key="r.id" class="qa-reply">
                 <div class="label">A: {{ r.content }}</div>
-                <div class="muted">By {{ r.author_name }} • {{ formatDate(r.created_at) }}</div>
+                <div class="muted">By <RouterLink :to="{ name: 'User Profile', params: { id: r.author } }" class="username-link">{{ r.author_name }}</RouterLink> • {{ formatDate(r.created_at) }}</div>
               </div>
             </div>
             <form v-if="isLoggedIn && isSeller" class="reply-form" @submit.prevent="submitReply(q.id)">
@@ -143,6 +150,7 @@ type QuestionDetail = Question & { asker: number; replies: Reply[] };
 interface ItemDetail extends Item {
   bids: Bid[];
   questions: QuestionDetail[];
+  owner_username: string;
 }
 
 const route = useRoute();
@@ -310,7 +318,8 @@ onMounted(fetchItem);
 }
 
 h1 { margin: 0 0 0.35rem; }
-.description { color: #4a5568; margin: 0 0 1rem; }
+.description { color: #4a5568; margin: 0 0 0.5rem; }
+.owner-info { margin: 0 0 1rem; font-size: 0.95rem; color: #4a5568; }
 
 .price-row {
   display: grid;
@@ -422,6 +431,20 @@ h1 { margin: 0 0 0.35rem; }
 .qa-reply { margin-left: 0.5rem; padding-left: 0.75rem; border-left: 2px solid #e5e7eb; }
 
 .text-error { color: #b91c1c; }
+
+.username-link {
+  color: #0d6efd;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.username-link:hover {
+  text-decoration: underline;
+}
+
+.pill {
+  text-decoration: none;
+}
 
 .item-actions {
   margin-top: 1.5rem;

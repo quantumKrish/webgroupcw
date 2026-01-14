@@ -26,6 +26,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('api/profile/', views.profile, name='profile'),
     path('api/user/', views.user_info, name='user-info'),
+    path('api/users/<int:user_id>/', views.user_profile_display, name='user-profile-display'),
     
     # Item & Bid endpoints (Krish's work)
     path('api/items/create/', views.item_create, name='item-create'),
