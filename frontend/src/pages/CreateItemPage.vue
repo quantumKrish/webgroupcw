@@ -80,6 +80,23 @@
         </div>
       </div>
 
+      <!-- Additional Images -->
+      <div class="form-group">
+        <label>Additional Images</label>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          @change="handleExtraSelect"
+        />
+        <div v-if="extraPreviews.length" class="extra-grid">
+          <div v-for="(preview, idx) in extraPreviews" :key="preview" class="extra-thumb">
+            <img :src="preview" alt="Additional preview" />
+            <button type="button" class="remove-btn" @click="removeExtra(idx)">✕</button>
+          </div>
+        </div>
+      </div>
+
       <!-- End Date/Time -->
       <div class="form-group">
         <label for="ends_at">Auction End Date/Time *</label>
@@ -132,9 +149,11 @@ export default defineComponent({
         description: '',
         starting_price: '',
         image: null as File | null,
+        extra_images: [] as File[],
         ends_at: '',
       },
       imagePreview: '',
+      extraPreviews: [] as string[],
       isDragging: false,
       submitting: false,
       error: '',
@@ -180,6 +199,25 @@ export default defineComponent({
       (this.$refs.fileInput as HTMLInputElement).value = '';
     },
 
+    handleExtraSelect(event: Event) {
+      const target = event.target as HTMLInputElement;
+      const files = Array.from(target.files || []);
+      files.forEach((file) => {
+        if (file.type.startsWith('image/')) {
+          this.form.extra_images.push(file);
+          const reader = new FileReader();
+          reader.onload = (e) => this.extraPreviews.push(e.target?.result as string);
+          reader.readAsDataURL(file);
+        }
+      });
+      (this.$refs.fileInput as HTMLInputElement).value = '';
+    },
+
+    removeExtra(idx: number) {
+      this.form.extra_images.splice(idx, 1);
+      this.extraPreviews.splice(idx, 1);
+    },
+
     async submitItem() {
       if (!this.form.image) {
         this.error = 'Please select an image';
@@ -197,6 +235,7 @@ export default defineComponent({
         formData.append('starting_price', this.form.starting_price);
         formData.append('ends_at', this.form.ends_at);
         formData.append('image', this.form.image);
+        this.form.extra_images.forEach((img) => formData.append('extra_images', img));
 
         const response = await fetch('/api/items/create/', {
           method: 'POST',
@@ -219,9 +258,11 @@ export default defineComponent({
           description: '',
           starting_price: '',
           image: null,
+          extra_images: [],
           ends_at: '',
         };
         this.imagePreview = '';
+        this.extraPreviews = [];
 
         // Redirect after a delay
         setTimeout(() => {
@@ -423,5 +464,36 @@ h1 {
 
 .remove-btn:hover {
   background: #dc2626;
+}
+
+.extra-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.extra-thumb {
+  position: relative;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.extra-thumb img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+}
+
+.extra-thumb .remove-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  margin-top: 0;
+  padding: 0.25rem 0.45rem;
+  font-size: 0.85rem;
 }
 </style>

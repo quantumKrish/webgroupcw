@@ -2,15 +2,37 @@
   <div class="item-list-page">
     <h1>Auction Items</h1>
     
-    <!-- Search bar -->
-    <div class="search-box">
-      <input 
-        v-model="searchQuery" 
-        @input="onSearchInput"
-        type="text" 
-        placeholder="Search items by title or description..."
-        class="search-input"
-      />
+    <!-- Search + Filters -->
+    <div class="controls">
+      <div class="search-box">
+        <input 
+          v-model="searchQuery" 
+          @input="onSearchInput"
+          type="text" 
+          placeholder="Search items by title or description..."
+          class="search-input"
+        />
+      </div>
+      <div class="filters">
+        <label>
+          Status
+          <select v-model="statusFilter">
+            <option value="all">All</option>
+            <option value="won">Won</option>
+            <option value="ended">Ended</option>
+            <option value="active">Active</option>
+          </select>
+        </label>
+        <label>
+          Sort
+          <select v-model="sortOption">
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="price-high">Price: High → Low</option>
+            <option value="price-low">Price: Low → High</option>
+          </select>
+        </label>
+      </div>
     </div>
 
     <!-- Loading state -->
@@ -22,7 +44,7 @@
     <!-- Items grid -->
     <div v-if="!loading && !error" class="items-grid">
       <RouterLink 
-        v-for="item in items" 
+        v-for="item in filteredItems" 
         :key="item.id" 
         class="item-card"
         :to="{ name: 'Item Detail', params: { id: item.id } }"
@@ -40,7 +62,7 @@
         </div>
       </RouterLink>
       
-      <div v-if="items.length === 0" class="no-items">
+      <div v-if="filteredItems.length === 0" class="no-items">
         No items found{{ searchQuery ? ' matching your search' : '' }}.
       </div>
     </div>
@@ -51,6 +73,7 @@
 import { defineComponent } from 'vue';
 import { RouterLink } from 'vue-router';
 import type { Item } from '../types';
+import { useAuthStore } from '@/stores/auth';
 
 export default defineComponent({
   name: 'ItemListPage',
@@ -63,11 +86,48 @@ export default defineComponent({
       loading: false,
       error: '',
       searchTimeout: null as number | null,
+      statusFilter: 'all',
+      sortOption: 'newest',
     };
   },
 
   mounted() {
     this.fetchItems();
+  },
+
+  computed: {
+    filteredItems(): Item[] {
+      const now = Date.now();
+      const auth = useAuthStore();
+      const wonIds = new Set((auth.user?.won_items || []).map((w) => w.id));
+
+      let list = this.items.filter((item) => {
+        const endsAt = new Date(item.ends_at).getTime();
+        const isEnded = endsAt < now;
+        const isWon = wonIds.has(item.id);
+
+        if (this.statusFilter === 'won') return isWon;
+        if (this.statusFilter === 'ended') return isEnded;
+        if (this.statusFilter === 'active') return !isEnded;
+        return true; // all
+      });
+
+      list = list.slice().sort((a, b) => {
+        if (this.sortOption === 'price-high') {
+          return parseFloat(b.current_price || b.starting_price) - parseFloat(a.current_price || a.starting_price);
+        }
+        if (this.sortOption === 'price-low') {
+          return parseFloat(a.current_price || a.starting_price) - parseFloat(b.current_price || b.starting_price);
+        }
+        if (this.sortOption === 'oldest') {
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        }
+        // newest (default)
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+
+      return list;
+    },
   },
 
   methods: {
@@ -127,8 +187,15 @@ h1 {
   color: #333;
 }
 
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
 .search-box {
-  margin-bottom: 2rem;
+  flex: 1 1 320px;
 }
 
 .search-input {
@@ -143,6 +210,29 @@ h1 {
 .search-input:focus {
   outline: none;
   border-color: #4CAF50;
+}
+
+.filters {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.filters select {
+  min-width: 170px;
+  padding: 0.55rem 0.75rem;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
 }
 
 .loading, .error, .no-items {

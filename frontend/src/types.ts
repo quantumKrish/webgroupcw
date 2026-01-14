@@ -41,6 +41,7 @@ export interface Item {
   description: string;
   starting_price: string; // decimal as string
   image_url: string | null;
+  images?: string[];
   ends_at: string; // ISO datetime
   created_at: string; // ISO datetime
   updated_at: string; // ISO datetime
