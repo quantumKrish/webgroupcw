@@ -452,53 +452,35 @@ def item_detail(request: HttpRequest, item_id: int) -> JsonResponse:
         highest_bid = item.bids.aggregate(max_bid=Max('amount')).get('max_bid')
         current_price = highest_bid if highest_bid else item.starting_price
 
-        bids_data = []
-        for b in item.bids.order_by('-created_at'):
-            bidder_profile, _ = Profile.objects.get_or_create(user=b.bidder)
-            bidder_profile_image = ''
-            if bidder_profile.profile_image:
-                bidder_profile_image = request.build_absolute_uri(bidder_profile.profile_image.url)
-            
-            bids_data.append({
+        bids_data = [
+            {
                 'id': b.id,
                 'bidder': b.bidder.id,
                 'bidder_name': b.bidder.username,
-                'bidder_profile_image': bidder_profile_image,
                 'amount': str(b.amount),
                 'created_at': b.created_at.isoformat(),
-            })
+            }
+            for b in item.bids.order_by('-created_at')
+        ]
 
         questions_data = []
         for q in item.questions.order_by('-created_at'):
-            asker_profile, _ = Profile.objects.get_or_create(user=q.asker)
-            asker_profile_image = ''
-            if asker_profile.profile_image:
-                asker_profile_image = request.build_absolute_uri(asker_profile.profile_image.url)
-            
-            replies_data = []
-            for r in q.replies.order_by('created_at'):
-                responder_profile, _ = Profile.objects.get_or_create(user=r.responder)
-                responder_profile_image = ''
-                if responder_profile.profile_image:
-                    responder_profile_image = request.build_absolute_uri(responder_profile.profile_image.url)
-                
-                replies_data.append({
-                    'id': r.id,
-                    'responder': r.responder.id,
-                    'responder_name': r.responder.username,
-                    'responder_profile_image': responder_profile_image,
-                    'text': r.text,
-                    'created_at': r.created_at.isoformat(),
-                })
-            
             questions_data.append({
                 'id': q.id,
                 'asker': q.asker.id,
                 'asker_name': q.asker.username,
-                'asker_profile_image': asker_profile_image,
-                'text': q.text,
+                'text': q.text,  # Changed from 'content' to 'text'
                 'created_at': q.created_at.isoformat(),
-                'replies': replies_data,
+                'replies': [
+                    {
+                        'id': r.id,
+                        'responder': r.responder.id,  # Changed from 'author' to 'responder'
+                        'responder_name': r.responder.username,
+                        'text': r.text,  # Changed from 'content' to 'text'
+                        'created_at': r.created_at.isoformat(),
+                    }
+                    for r in q.replies.order_by('created_at')
+                ],
             })
 
         # Get image URL - only use image_url field
@@ -508,17 +490,10 @@ def item_detail(request: HttpRequest, item_id: int) -> JsonResponse:
         elif item.image_url:
             image_url = item.image_url
 
-        # Get owner profile image
-        owner_profile, _ = Profile.objects.get_or_create(user=item.owner)
-        owner_profile_image = ''
-        if owner_profile.profile_image:
-            owner_profile_image = request.build_absolute_uri(owner_profile.profile_image.url)
-
         return JsonResponse({
             'id': item.id,
             'owner': item.owner.id,
             'owner_username': item.owner.username,
-            'owner_profile_image': owner_profile_image,
             'title': item.title,
             'description': item.description,
             'starting_price': str(item.starting_price),

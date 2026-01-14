@@ -1,5 +1,24 @@
 <template>
     <div class="hero">
+        <!-- Won Auctions Banner -->
+        <div v-if="auth.user?.won_items && auth.user.won_items.length > 0" class="won-banner">
+            <h3> Congratulations! You won {{ auth.user.won_items.length }} auction{{ auth.user.won_items.length > 1 ? 's' : '' }}!</h3>
+            <div class="won-items">
+                <RouterLink 
+                    v-for="won in auth.user.won_items" 
+                    :key="won.id" 
+                    :to="{ name: 'Item Detail', params: { id: won.id } }"
+                    class="won-item"
+                >
+                    <img v-if="won.image_url" :src="won.image_url" :alt="won.title" />
+                    <div>
+                        <strong>{{ won.title }}</strong>
+                        <p>Final price: ${{ won.final_price }}</p>
+                    </div>
+                </RouterLink>
+            </div>
+        </div>
+
         <div>
             <p class="eyebrow">Welcome to</p>
             <h1>Auction App</h1>
@@ -201,6 +220,62 @@ h1 {
 .price { font-weight: 700; color: #0d6efd; }
 
 .text-error { color: #b91c1c; }
+
+.won-banner {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border: 2px solid #86efac;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.won-banner h3 {
+    margin: 0 0 1rem;
+    color: #15803d;
+    font-size: 1.25rem;
+}
+
+.won-items {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.won-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 0.75rem;
+    border: 1px solid #86efac;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s;
+}
+
+.won-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.won-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+}
+
+.won-item strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: #15803d;
+}
+
+.won-item p {
+    margin: 0;
+    color: #16a34a;
+    font-weight: 600;
+}
 
 .hero-card ul {
     list-style: none;
