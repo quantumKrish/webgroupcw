@@ -1,24 +1,5 @@
 <template>
     <div class="hero">
-        <!-- Won Auctions Banner -->
-        <div v-if="auth.user?.won_items && auth.user.won_items.length > 0" class="won-banner">
-            <h3> Congratulations! You won {{ auth.user.won_items.length }} auction{{ auth.user.won_items.length > 1 ? 's' : '' }}!</h3>
-            <div class="won-items">
-                <RouterLink 
-                    v-for="won in auth.user.won_items" 
-                    :key="won.id" 
-                    :to="{ name: 'Item Detail', params: { id: won.id } }"
-                    class="won-item"
-                >
-                    <img v-if="won.image_url" :src="won.image_url" :alt="won.title" />
-                    <div>
-                        <strong>{{ won.title }}</strong>
-                        <p>Final price: ${{ won.final_price }}</p>
-                    </div>
-                </RouterLink>
-            </div>
-        </div>
-
         <div>
             <p class="eyebrow">Welcome to</p>
             <h1>Auction App</h1>
@@ -50,6 +31,25 @@
                 </li>
                 <li v-if="endingSoon.length === 0" class="muted">No active auctions yet.</li>
             </ul>
+        </div>
+    </div>
+
+    <!-- Won Auctions Banner (smaller, below) -->
+    <div v-if="auth.user?.won_items && auth.user.won_items.length > 0" class="won-banner compact">
+        <h3>Congratulations! You won {{ auth.user.won_items.length }} auction{{ auth.user.won_items.length > 1 ? 's' : '' }}.</h3>
+        <div class="won-items">
+            <RouterLink 
+                v-for="won in auth.user.won_items" 
+                :key="won.id" 
+                :to="{ name: 'Item Detail', params: { id: won.id } }"
+                class="won-item"
+            >
+                <img v-if="won.image_url" :src="won.image_url" :alt="won.title" />
+                <div>
+                    <strong>{{ won.title }}</strong>
+                    <p>Final price: ${{ won.final_price }}</p>
+                </div>
+            </RouterLink>
         </div>
     </div>
 </template>
@@ -221,18 +221,19 @@ h1 {
 
 .text-error { color: #b91c1c; }
 
+
 .won-banner {
     background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-    border: 2px solid #86efac;
-    border-radius: 1rem;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
+    border: 1px solid #86efac;
+    border-radius: 0.85rem;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0 0;
 }
 
-.won-banner h3 {
-    margin: 0 0 1rem;
+.won-banner.compact h3 {
+    margin: 0 0 0.65rem;
     color: #15803d;
-    font-size: 1.25rem;
+    font-size: 1.05rem;
 }
 
 .won-items {
@@ -246,7 +247,7 @@ h1 {
     gap: 1rem;
     padding: 1rem;
     background: white;
-    border-radius: 0.75rem;
+    border-radius: 0.65rem;
     border: 1px solid #86efac;
     text-decoration: none;
     color: inherit;
@@ -267,7 +268,7 @@ h1 {
 
 .won-item strong {
     display: block;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.15rem;
     color: #15803d;
 }
 

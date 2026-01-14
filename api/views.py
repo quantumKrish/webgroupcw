@@ -14,16 +14,19 @@ import json
 from typing import Any
 
 from .forms import UserSignUpForm, UserLoginForm
-from .models import Profile, Item, Bid, Question, Reply
+from .models import Profile, Item, ItemImage, Bid, Question, Reply
 
 def get_frontend_url():
     return os.getenv('FRONTEND_URL', 'http://localhost:5173')
 
 def get_image_url(request: HttpRequest, item: Item) -> str:
     """Build absolute URL for item image."""
+    primary_image = item.images.first() if hasattr(item, 'images') else None
+    if primary_image:
+        return request.build_absolute_uri(primary_image.image.url)
     if item.image:
         return request.build_absolute_uri(item.image.url)
-    elif item.image_url:
+    if item.image_url:
         return item.image_url
     return ''
 
@@ -233,12 +236,8 @@ def item_list(request: HttpRequest) -> JsonResponse:
         data = []
         for item in items:
             try:
-                # Get image URL - only use image_url since image field doesn't exist
-                image_url = ''
-                if item.image:
-                    image_url = request.build_absolute_uri(item.image.url)
-                elif item.image_url:
-                    image_url = item.image_url
+                # Primary image URL (prefers ItemImage)
+                image_url = get_image_url(request, item)
 
                 
                 # Get current price (highest bid or starting price)
@@ -320,17 +319,19 @@ def item_create(request: HttpRequest) -> JsonResponse:
             ends_at=ends_at,
         )
         
-        # Handle image upload
+        # Handle image upload (primary)
         if image_file:
             item.image = image_file
             item.save()
+            ItemImage.objects.create(item=item, image=image_file, is_primary=True)
+
+        # Handle additional images
+        extra_images = request.FILES.getlist('extra_images')
+        for extra in extra_images:
+            ItemImage.objects.create(item=item, image=extra, is_primary=False)
         
-        # Get final image URL
-        final_image_url = ''
-        if item.image:
-            final_image_url = request.build_absolute_uri(item.image.url)
-        elif item.image_url:
-            final_image_url = item.image_url
+        # Get final image URL (prefer primary ItemImage)
+        final_image_url = get_image_url(request, item)
         
         return JsonResponse({
             'id': item.id,
@@ -341,6 +342,10 @@ def item_create(request: HttpRequest) -> JsonResponse:
             'starting_price': str(item.starting_price),
             'current_price': str(item.current_price),
             'image_url': final_image_url,
+            'images': [
+                request.build_absolute_uri(img.image.url)
+                for img in item.images.all()
+            ],
             'ends_at': item.ends_at.isoformat(),
             'created_at': item.created_at.isoformat(),
             'updated_at': item.updated_at.isoformat(),
@@ -501,12 +506,12 @@ def item_detail(request: HttpRequest, item_id: int) -> JsonResponse:
                 'replies': replies_data,
             })
 
-        # Get image URL - only use image_url field
-        image_url = ''
-        if item.image:
-            image_url = request.build_absolute_uri(item.image.url)
-        elif item.image_url:
-            image_url = item.image_url
+        # Images (prefer ItemImage primary)
+        image_url = get_image_url(request, item)
+        images = [
+            request.build_absolute_uri(img.image.url)
+            for img in item.images.all()
+        ]
 
         # Get owner profile image
         owner_profile, _ = Profile.objects.get_or_create(user=item.owner)
@@ -524,6 +529,7 @@ def item_detail(request: HttpRequest, item_id: int) -> JsonResponse:
             'starting_price': str(item.starting_price),
             'current_price': str(current_price),
             'image_url': image_url,
+            'images': images,
             'ends_at': item.ends_at.isoformat(),
             'created_at': item.created_at.isoformat(),
             'updated_at': item.updated_at.isoformat(),

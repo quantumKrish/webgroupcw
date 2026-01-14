@@ -71,6 +71,19 @@ class Item(models.Model):
         from django.utils import timezone
         return timezone.now() > self.ends_at
 
+
+class ItemImage(models.Model):
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to='item_images/')
+    is_primary = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-is_primary", "created_at"]
+
+    def __str__(self) -> str:
+        return f"Image for item {self.item_id} (primary={self.is_primary})"
+
 class Bid(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="bids")
     bidder = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bids")
