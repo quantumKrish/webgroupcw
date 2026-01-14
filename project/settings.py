@@ -156,7 +156,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 EMAIL_HOST_USER = "burneremailforqmcs@gmail.com"
-EMAIL_HOST_PASSWORD = "burneremail67"
+EMAIL_HOST_PASSWORD = "hstlqblyqxzaomqz"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # cron stuff
