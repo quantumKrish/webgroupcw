@@ -1,4 +1,11 @@
 // User types
+export interface WonItem {
+  id: number;
+  title: string;
+  image_url: string;
+  final_price: string;
+}
+
 export interface User {
   id: number;
   username: string;
@@ -6,6 +13,7 @@ export interface User {
   first_name?: string;
   last_name?: string;
   profile_image_url?: string | null;
+  won_items?: WonItem[];
 }
 
 // Profile types
