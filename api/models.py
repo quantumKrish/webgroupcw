@@ -52,7 +52,8 @@ class Item(models.Model):
     ends_at = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    winner_email_sent = models.BooleanField(False, default=False)
+    winner_email_sent = models.BooleanField(default=False)
+    winner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="won_items")
 
     class Meta:
         ordering = ["-created_at"]
@@ -64,6 +65,11 @@ class Item(models.Model):
     def current_price(self):
         top = self.bids.order_by("-amount").first()
         return top.amount if top else self.starting_price
+    
+    @property
+    def has_ended(self):
+        from django.utils import timezone
+        return timezone.now() > self.ends_at
 
 class Bid(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="bids")

@@ -20,15 +20,26 @@ class Command(BaseCommand):
             # Get the highest bid for the item
             winning_bid = item.bids.order_by("-amount").first()
 
-            # If there is a winning bid, send the winner an email
+            # If there is a winning bid, save the winner and try to send email
             if winning_bid:
-                send_winner_email(
-                    winning_bid.bidder.email,
-                    item.title,
-                )
-
-            # Mark the item as closed
-            item.winner_email_sent = True
+                # Save the winner first
+                item.winner = winning_bid.bidder
+                
+                # Try to send email (but don't fail if it doesn't work)
+                try:
+                    send_winner_email(
+                        winning_bid.bidder.email,
+                        item.title,
+                    )
+                    item.winner_email_sent = True
+                except Exception as e:
+                    self.stdout.write(self.style.WARNING(f"Failed to send email for {item.title}: {e}"))
+                    # Still mark as sent so we don't keep trying
+                    item.winner_email_sent = True
+            else:
+                # No bids, mark as processed
+                item.winner_email_sent = True
+            
             item.save()
 
             # Optional: Log that an auction was closed
