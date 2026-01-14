@@ -33,8 +33,8 @@
         <template v-if="auth.isAuthenticated">
           <RouterLink 
             class="nav-link px-3 d-flex align-items-center" 
-            :class="{ 'active fw-semibold': $route.name === 'Profile' }"
-            :to="{ name: 'Profile' }"
+            :class="{ 'active fw-semibold': $route.name === 'User Profile' }"
+            :to="{ name: 'User Profile', params: { id: auth.user?.id } }"
           >
             <span class="avatar me-2" v-if="auth.user?.profile_image_url">
               <img :src="auth.user.profile_image_url" :alt="auth.user.username" />
