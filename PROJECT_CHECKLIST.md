@@ -149,11 +149,11 @@
 
 ### Emir
 
-- [ ] Code review all frontend code
-- [ ] Verify all Ajax calls work correctly
-- [ ] Test Vue Router on all pages
-- [ ] Test Pinia stores update correctly
-- [ ] Fix any frontend bugs found
+- [x] Code review all frontend code
+- [x] Verify all Ajax calls work correctly
+- [x] Test Vue Router on all pages
+- [x] Test Pinia stores update correctly
+- [x] Fix any frontend bugs found
 
 ### Krish
 
