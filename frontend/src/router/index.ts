@@ -30,7 +30,7 @@ const router = createRouter({
 })
 
 // Navigation Guards
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, _from, next) => {
     const authStore = useAuthStore();
 
     // Check if the route requires authentication
