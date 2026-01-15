@@ -33,7 +33,7 @@ SECRET_KEY = os.getenv(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Enabled for local development so media/profile images are served.
-DEBUG = False
+DEBUG = True 
 
 ALLOWED_HOSTS = ['*']
 
@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'huey.contrib.djhuey',
+    'django_crontab',
     'api',
 ]
 
@@ -143,7 +143,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 INTERNAL_IPS = ['127.0.0.1']
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = '/opt/app-root/media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SAMESITE = 'Lax'
@@ -159,7 +159,6 @@ EMAIL_HOST_PASSWORD = "hstlqblyqxzaomqz"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # cron stuff
-HUEY = MemoryHuey(
-    'webgroupcw',
-    always_eager=False,
-)
+CRONJOBS = [
+    ('*/2 * * * *', 'api.management.commands.check_bids')
+]
