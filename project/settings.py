@@ -39,7 +39,7 @@ ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
     os.getenv('FRONTEND_URL', 'http://localhost:5173'),
-    'https://auction-app-web-apps-ec22888.apps.a.comp-teach.qmul.ac.uk/'
+    'https://auction-app-web-apps-ec22888.apps.a.comp-teach.qmul.ac.uk/',
     'http://127.0.0.1:5173',
 ]
 
