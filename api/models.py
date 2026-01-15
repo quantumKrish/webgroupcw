@@ -5,7 +5,7 @@ from rest_framework import serializers
 class User(AbstractUser):
     email: models.EmailField = models.EmailField(unique=True)
     profile_image: models.ImageField = models.ImageField(
-        upload_to="profiles/",
+        upload_to="profile_images/",
         blank=True,
         null=True
     )
