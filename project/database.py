@@ -31,9 +31,9 @@ def config():
 def prod_config():
     return {
         'ENGINE': engines['postgresql'],
-        'NAME': os.getenv('POSTGRESQL_DATABASE'),
-        'USER': os.getenv('POSTGRESQL_USER'),
-        'PASSWORD': os.getenv('POSTGRESQL_PASSWORD'),
+        'NAME': 'default',
+        'USER': 'django',
+        'PASSWORD': 'xHTl4MA3FsNqj0MJ',
         'HOST': 'postgresql',
         'PORT': '5432',  # Default Postgres port
     }
