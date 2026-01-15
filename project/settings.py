@@ -91,7 +91,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 
 DATABASES = {
-    'default': database.config()
+    'default': database.prod_config()
 }
 
 AUTH_USER_MODEL = 'api.User'

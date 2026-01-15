@@ -27,3 +27,13 @@ def config():
         'HOST': os.getenv('{}_SERVICE_HOST'.format(service_name)),
         'PORT': os.getenv('{}_SERVICE_PORT'.format(service_name)),
     }
+
+def prod_config():
+    return {
+        'ENGINE': engines['postgresql'],
+        'NAME': os.getenv('POSTGRESQL_DATABASE'),
+        'USER': os.getenv('POSTGRESQL_USER'),
+        'PASSWORD': os.getenv('POSTGRESQL_PASSWORD'),
+        'HOST': 'postgresql',
+        'PORT': '5432',  # Default Postgres port
+    }
