@@ -92,7 +92,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 
 DATABASES = {
-    'default': database.chttps://cdn.dribbble.com/userupload/30673857/file/original-93ce35edccd9640cef8f61052c273f88.jpg?resize=752x&vertical=centeronfig()
+    'default': database.prod_config()
 }
 
 AUTH_USER_MODEL = 'api.User'
