@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/stable/ref/settings/
 """
 
 from . import database
+from huey import MemoryHuey
 import os
 
 from pathlib import Path
@@ -32,7 +33,7 @@ SECRET_KEY = os.getenv(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Enabled for local development so media/profile images are served.
-DEBUG = True
+DEBUG = True 
 
 ALLOWED_HOSTS = ['*']
 
@@ -158,6 +159,7 @@ EMAIL_HOST_PASSWORD = "hstlqblyqxzaomqz"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # cron stuff
-CRONJOBS = [
-    ('*/2 * * * *', 'api.management.commands.check_bids')
-]
+HUEY = MemoryHuey(
+    'webgroupcw',
+    always_eager=False,
+)
