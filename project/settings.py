@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/stable/ref/settings/
 """
 
 from . import database
-from huey import MemoryHuey
 import os
 
 from pathlib import Path
