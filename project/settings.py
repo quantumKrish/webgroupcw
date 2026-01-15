@@ -39,7 +39,6 @@ ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
     os.getenv('FRONTEND_URL', 'http://localhost:5173'),
-    'https://auction-app-web-apps-ec22888.apps.a.comp-teach.qmul.ac.uk/',
     'http://127.0.0.1:5173',
 ]
 
@@ -93,7 +92,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 
 DATABASES = {
-    'default': database.prod_config()
+    'default': database.chttps://cdn.dribbble.com/userupload/30673857/file/original-93ce35edccd9640cef8f61052c273f88.jpg?resize=752x&vertical=centeronfig()
 }
 
 AUTH_USER_MODEL = 'api.User'
