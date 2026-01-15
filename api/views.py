@@ -17,7 +17,7 @@ from .forms import UserSignUpForm, UserLoginForm
 from .models import Profile, Item, ItemImage, Bid, Question, Reply
 
 def get_frontend_url():
-    return os.getenv('FRONTEND_URL', 'http://localhost:5173')
+    return os.getenv('FRONTEND_URL', 'https://django-psql-persistent-web-apps-ec22888.apps.a.comp-teach.qmul.ac.uk')
 
 def get_image_url(request: HttpRequest, item: Item) -> str:
     """Build absolute URL for item image."""
