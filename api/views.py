@@ -11,13 +11,12 @@ from django.core.mail import send_mail, EmailMessage
 from django.conf import settings 
 from decimal import Decimal
 import json
-from typing import Any
 
 from .forms import UserSignUpForm, UserLoginForm
 from .models import Profile, Item, ItemImage, Bid, Question, Reply
 
 def get_frontend_url():
-    return 'https://django-psql-persistent-web-apps-ec22888.apps.a.comp-teach.qmul.ac.uk'
+    return os.getenv('FRONTEND_URL', 'http://localhost:5173')
 
 def get_image_url(request: HttpRequest, item: Item) -> str:
     """Build absolute URL for item image."""
