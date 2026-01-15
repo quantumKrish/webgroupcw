@@ -142,12 +142,27 @@ def user_info(request: HttpRequest):
     user = request.user
     profile, _ = Profile.objects.get_or_create(user=user)
     profile_image_url = request.build_absolute_uri(profile.profile_image.url) if profile.profile_image else None
+    
+    # Get won auctions (if winner field exists)
+    won_items = []
+    if hasattr(Item, 'winner'):
+        won_auctions = Item.objects.filter(winner=user, winner_email_sent=True)
+        for item in won_auctions:
+            image_url = request.build_absolute_uri(item.image.url) if item.image else (item.image_url or '')
+            won_items.append({
+                'id': item.id,
+                'title': item.title,
+                'image_url': image_url,
+                'final_price': str(item.current_price),
+            })
+    
     return JsonResponse({
         'id': user.id,
         'username': user.username,
         'email': user.email,
         'profile_image_url': profile_image_url,
         'authenticated': True,
+        'won_items': won_items,
     })
 
 
