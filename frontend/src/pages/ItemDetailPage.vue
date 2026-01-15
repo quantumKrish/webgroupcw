@@ -71,7 +71,7 @@
             <p class="muted">You cannot bid on your own item</p>
           </div>
         </div>
-        <div class="item-actions">
+        <div v-if="isSeller" class="item-actions">
           <button @click="deleteItem" class="delete-btn" :disabled="deleting">
             {{ deleting ? 'Deleting…' : 'Delete Item' }}
           </button>
@@ -105,14 +105,7 @@
                 </span>
                 {{ bid.bidder_name }}
               </RouterLink>
-              <button 
-                v-if="auth.user && auth.user.id === bid.bidder" 
-                @click="deleteBid(bid.id)" 
-                class="delete-btn-small"
-                title="Delete bid"
-              >
-                ×
-              </button>
+
             </div>
           </li>
         </ul>

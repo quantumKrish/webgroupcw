@@ -702,3 +702,58 @@ def bid_delete(request: HttpRequest, bid_id: int) -> JsonResponse:
 
     bid.delete()
     return JsonResponse({'success': True, 'message': 'Bid deleted'}, status=200)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def bid_update(request: HttpRequest, bid_id: int) -> JsonResponse:
+    """Update a bid amount (only bidder can update)."""
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    if 'amount' not in data:
+        return JsonResponse({'error': 'Missing amount'}, status=400)
+
+    try:
+        bid = Bid.objects.get(id=bid_id)
+    except Bid.DoesNotExist:
+        return JsonResponse({'error': 'Bid not found'}, status=404)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Login required'}, status=401)
+
+    if request.user != bid.bidder:
+        return JsonResponse({'error': 'Only the bidder can update this bid'}, status=403)
+
+    # Check auction hasn't ended
+    if bid.item.ends_at < timezone.now():
+        return JsonResponse({'error': 'Auction has ended'}, status=400)
+
+    # Validate bid amount
+    try:
+        new_amount = Decimal(data['amount'])
+        if new_amount <= 0:
+            return JsonResponse({'error': 'Bid amount must be greater than 0'}, status=400)
+    except:
+        return JsonResponse({'error': 'Invalid amount format'}, status=400)
+
+    # Check new amount is higher than current bid
+    current_price = bid.item.current_price
+    if new_amount <= current_price:
+        return JsonResponse({
+            'error': f'New bid must be greater than current price of {current_price}'
+        }, status=400)
+
+    # Update bid
+    bid.amount = new_amount
+    bid.save()
+
+    return JsonResponse({
+        'id': bid.id,
+        'item': bid.item.id,
+        'bidder': bid.bidder.id,
+        'amount': str(bid.amount),
+        'created_at': bid.created_at.isoformat(),
+    }, status=200)

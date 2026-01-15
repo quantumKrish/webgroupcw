@@ -57,28 +57,28 @@
             </div>
             <div v-else class="row">
               <div v-for="item in userItems" :key="item.id" class="col-md-6 mb-3">
-                <div class="card h-100">
-                  <img 
-                    v-if="item.image_url" 
-                    :src="item.image_url" 
-                    class="card-img-top" 
-                    :alt="item.title"
-                    style="height: 150px; object-fit: cover;"
-                  >
-                  <div class="card-body">
-                    <h6 class="card-title">
-                      <RouterLink :to="{ name: 'Item Detail', params: { id: item.id } }">
+                <RouterLink :to="{ name: 'Item Detail', params: { id: item.id } }" class="item-card-link">
+                  <div class="card h-100">
+                    <img 
+                      v-if="item.image_url" 
+                      :src="item.image_url" 
+                      class="card-img-top" 
+                      :alt="item.title"
+                      style="height: 150px; object-fit: cover;"
+                    >
+                    <div class="card-body">
+                      <h6 class="card-title">
                         {{ item.title }}
-                      </RouterLink>
-                    </h6>
-                    <p class="card-text small text-muted">
-                      Current: ${{ item.current_price }}
-                    </p>
-                    <p class="card-text small">
-                      <i class="bi bi-clock"></i> Ends: {{ formatDate(item.ends_at) }}
-                    </p>
+                      </h6>
+                      <p class="card-text small text-muted">
+                        Current: ${{ item.current_price }}
+                      </p>
+                      <p class="card-text small">
+                        <i class="bi bi-clock"></i> Ends: {{ formatDate(item.ends_at) }}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                </RouterLink>
               </div>
             </div>
           </div>
@@ -204,6 +204,12 @@ function formatDate(dateString: string): string {
 
 .card:hover {
   transform: translateY(-2px);
+}
+
+.item-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 a {

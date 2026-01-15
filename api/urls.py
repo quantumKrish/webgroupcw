@@ -35,6 +35,7 @@ urlpatterns = [
     path('api/items/<int:item_id>/delete/', views.item_delete, name='item-delete'),
     path('api/bids/create/', views.bid_create, name='bid-create'),
     path('api/bids/<int:bid_id>/delete/', views.bid_delete, name='bid-delete'),
+    path('api/bids/<int:bid_id>/update/', views.bid_update, name='bid-update'),
     
     # Q&A endpoints
     path('api/questions/create/', views.question_create, name='question-create'),
