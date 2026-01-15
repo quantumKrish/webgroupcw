@@ -33,13 +33,14 @@ SECRET_KEY = os.getenv(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Enabled for local development so media/profile images are served.
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
+    'https://django-psql-persistent-web-apps-ec22888.apps.a.comp-teach.qmul.ac.uk',
 ]
 
 # Application definition
