@@ -24,6 +24,7 @@ def build_absolute_url(request: HttpRequest, url: str) -> str:
     if not url:
         return ''
     # If URL already starts with http, it's absolute (e.g., S3 URL), return as-is
+    url = url.split("?")[0]
     url = urlparse(url)._replace(query="").geturl()
 
     if url.startswith('http'):
