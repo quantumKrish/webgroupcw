@@ -100,26 +100,6 @@ npm run dev
 
 Visit `http://localhost:5173` to access the application.
 
-<<<<<<< HEAD
-## Test Data
-
-### Admin Credentials
-- **Username**: admin
-- **Password**: [See team for credentials]
-
-### Test Users
-| Username | Password | Role |
-|----------|----------|------|
-| krish | password123 | Seller/Buyer |
-| edwin | password123 | Seller/Buyer |
-| Emir | WebGroupCW | Seller/Buyer |
-| Gabagool | WebGroupCW | Seller/Buyer |
-
-## Deployed Application
-- **URL**: [OpenShift deployment URL - added upon deployment]
-- **Status**: In development (OpenShift deployment in progress)
-=======
->>>>>>> krish
 
 ## API Endpoints
 
