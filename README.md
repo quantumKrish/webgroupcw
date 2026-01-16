@@ -6,19 +6,19 @@ A Django + Vue.js auction web application (eBay-like) where users can create acc
 
 ### Adrian (Infrastructure & Backend)
 **Assigned**: Django setup, User model, authentication, email system  
-**Delivered**: Implemented custom AbstractUser model with Django authentication framework, signup/login forms, email configuration with Gmail SMTP, email templates for automated notifications, Huey background task queue for cron jobs, automated winner determination and notification system, OpenShift deployment setup with containerization, comprehensive Python type hints throughout backend code, REST API serializers and endpoints.
+**Delivered**: Custom User model with authentication, Huey task queue for automated winner emails, OpenShift deployment with S3 storage, Python type hints throughout backend.
 
 ### Emir (Frontend Architecture & Auth)
 **Assigned**: Vue.js frontend, authentication UI, routing  
-**Delivered**: Vue 3 with TypeScript setup, Pinia global store for auth/items, Vue Router with auth guards and protected routes, signup/login form pages with validation, user profile display and edit page with Ajax, frontend type checking and TypeScript interfaces for all data models, error handling and loading states throughout, edit item page for owners to modify listings, item and Q&A deletion UI with ownership validation, comprehensive testing of all auth/profile/routing features, test user account creation.
+**Delivered**: Vue 3 + TypeScript setup, Pinia store, Vue Router with guards, profile edit page with Ajax, TypeScript interfaces for all models, error handling and loading states.
 
 ### Kirishanth (Data Models, Bidding, Items & Q&A)
 **Assigned**: Database schema, items, bidding, search, Q&A  
-**Delivered**: All core models (Item, Bid, Question, Reply, ItemImage) with comprehensive database schema, multi-image carousel with modal viewer and thumbnail navigation, item listing page with Ajax search (no page refresh), advanced filtering (all/won/ended status) and sorting (price/date), item creation API endpoint with image upload, complete bidding system with validation and bid history display, Q&A system with seller-only replies, winner banner display, auction closed state handling, comprehensive testing of entire item/bid/Q&A flow, test data creation (10+ items, sample bids, Q&A).
+**Delivered**: All models (Item, Bid, Question, Reply, ItemImage), multi-image carousel, Ajax search with filtering/sorting, bidding with validation, Q&A system, test data creation.
 
 ## Deployed Application
 
-**URL**: https://auction-app-web-apps-ec22888.apps.a.comp-teach.qmul.ac.uk/
+**URL**: https://auction-app-web-apps-ec22888.apps.a.comp-teach.qmul.ac.uk/other/
 
 ## Admin & Test Credentials
 
