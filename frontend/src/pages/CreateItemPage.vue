@@ -193,6 +193,9 @@ export default defineComponent({
   },
 
   methods: {
+    // Fetches existing item data for editing
+    // After making API request, populates form fields
+    // Handles errors and loading state
     async loadItemData() {
       this.loading = true;
       this.error = '';
@@ -220,10 +223,12 @@ export default defineComponent({
       }
     },
 
+    // Triggers the hidden file input for image selection
     triggerFileInput() {
       (this.$refs.fileInput as HTMLInputElement).click();
     },
 
+    // Handles file selection from the file input
     handleFileSelect(event: Event) {
       const target = event.target as HTMLInputElement;
       const file = target.files?.[0];
@@ -232,6 +237,8 @@ export default defineComponent({
       }
     },
 
+    // Handles file drop in the drag-and-drop area
+    // Sets the dropped image as the main image
     handleDrop(event: DragEvent) {
       this.isDragging = false;
       const file = event.dataTransfer?.files[0];
@@ -242,6 +249,7 @@ export default defineComponent({
       }
     },
 
+    // Sets the main image and generates a preview
     setImage(file: File) {
       this.form.image = file;
       const reader = new FileReader();
@@ -251,12 +259,14 @@ export default defineComponent({
       reader.readAsDataURL(file);
     },
 
+    // Removes the selected main image
     removeImage() {
       this.form.image = null;
       this.imagePreview = '';
       (this.$refs.fileInput as HTMLInputElement).value = '';
     },
 
+    // Handles selection of additional images
     handleExtraSelect(event: Event) {
       const target = event.target as HTMLInputElement;
       const files = Array.from(target.files || []);
@@ -271,11 +281,14 @@ export default defineComponent({
       (this.$refs.fileInput as HTMLInputElement).value = '';
     },
 
+    // Removes an additional image by index
     removeExtra(idx: number) {
       this.form.extra_images.splice(idx, 1);
       this.extraPreviews.splice(idx, 1);
     },
 
+    // Submits the form data to create or update an item
+    // Handles success and error states
     async submitItem() {
       if (!this.isEditMode && !this.form.image) {
         this.error = 'Please select an image';
