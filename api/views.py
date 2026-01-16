@@ -634,7 +634,7 @@ def item_detail(request: HttpRequest, item_id: int) -> JsonResponse:
         # Images (prefer ItemImage primary)
         image_url = get_image_url(request, item)
         images = [
-            build_absolute_url(request, img.image.url)
+            clean_url(build_absolute_url(request, img.image.url))
             for img in item.images.all()
         ]
 
@@ -648,12 +648,12 @@ def item_detail(request: HttpRequest, item_id: int) -> JsonResponse:
             'id': item.id,
             'owner': item.owner.id,
             'owner_username': item.owner.username,
-            'owner_profile_image': owner_profile_image,
+            'owner_profile_image': clean_url(owner_profile_image),
             'title': item.title,
             'description': item.description,
             'starting_price': str(item.starting_price),
             'current_price': str(current_price),
-            'image_url': image_url,
+            'image_url': clean_url(image_url),
             'images': images,
             'ends_at': item.ends_at.isoformat(),
             'created_at': item.created_at.isoformat(),
