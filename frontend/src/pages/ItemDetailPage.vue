@@ -120,7 +120,7 @@
           <span class="muted">Ask or reply</span>
         </div>
 
-        <form v-if="isLoggedIn && !isSeller" class="qa-form" @submit.prevent="submitQuestion">
+        <form v-if="!hasEnded && isLoggedIn && !isSeller" class="qa-form" @submit.prevent="submitQuestion">
           <label for="question">Ask a question</label>
           <textarea
             id="question"
@@ -134,6 +134,9 @@
           </button>
           <p v-if="qaError" class="text-error">{{ qaError }}</p>
         </form>
+        <div v-else-if="hasEnded" class="placeholder">
+          <p class="muted">Q&amp;A is closed because the auction has ended.</p>
+        </div>
         <div v-else-if="!isLoggedIn" class="placeholder">
           <p class="muted"><a href="/login/">Log in</a> to ask a question</p>
         </div>
@@ -196,7 +199,7 @@
                 </div>
               </div>
             </div>
-            <form v-if="isLoggedIn && isSeller" class="reply-form" @submit.prevent="submitReply(q.id)">
+            <form v-if="!hasEnded && isLoggedIn && isSeller" class="reply-form" @submit.prevent="submitReply(q.id)">
               <label :for="`reply-${q.id}`">Reply</label>
               <textarea
                 :id="`reply-${q.id}`"
@@ -209,6 +212,9 @@
                 {{ qaSubmitting ? 'Posting…' : 'Reply' }}
               </button>
             </form>
+            <div v-else-if="hasEnded" class="placeholder">
+              <p class="muted">Q&amp;A is closed because the auction has ended.</p>
+            </div>
             <div v-else-if="!isLoggedIn" class="placeholder">
               <p class="muted"><a href="/login/">Log in</a> to reply</p>
             </div>
