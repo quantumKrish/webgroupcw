@@ -14,7 +14,7 @@ A Django + Vue.js auction web application (eBay-like) where users can create acc
 
 ### Kirishanth (Data Models, Bidding, Items & Q&A)
 **Assigned**: Database schema, items, bidding, search, Q&A  
-**Delivered**: All models (Item, Bid, Question, Reply, ItemImage), multi-image carousel, Ajax search with filtering/sorting, bidding with validation, Q&A system, test data creation.
+**Delivered**: All models (Item, Bid, Question, Reply, ItemImage), multi-image carousel, Ajax search with filtering/sorting, bidding with validation, Q&A system.
 
 ## Deployed Application
 
