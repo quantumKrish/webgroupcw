@@ -29,7 +29,7 @@ class Command(BaseCommand):
                 try:
                     send_winner_email(
                         winning_bid.bidder.email,
-                        item.title,
+                        item,
                     )
                     item.winner_email_sent = True
                 except Exception as e:

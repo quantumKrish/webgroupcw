@@ -50,10 +50,24 @@ def main_spa(request: HttpRequest) -> HttpResponse:
 
 def send_winner_email(
     to_email: str,
-    item_title: str
+    item: Item 
 ) -> None:
-    subject = "🎉 You won the auction!"
-    message = f"Congratulations! You won the auction for '{item_title}'."
+    subject = "🎉 Congratulations, You Won the Auction!"
+    
+    item_title = item.title
+    item_owner = item.owner.username
+    final_price = item.current_price
+
+    message = (
+        f"Dear Winner,\n\n"
+        f"Congratulations! You have won the auction for the item '{item_title}' "
+        f"which was listed by {item_owner}.\n\n"
+        f"Winning Price: ${final_price:.2f}\n\n"
+        f"Please make sure to complete the payment as soon as possible. "
+        f"Details about the next steps will follow in a separate email.\n\n"
+        f"Thank you for participating in our auction, and we hope to see you again soon!\n\n"
+        f"Best Regards,\nThe Auction Team"
+    )
 
     send_mail(
         subject,
