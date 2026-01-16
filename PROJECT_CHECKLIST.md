@@ -177,11 +177,11 @@
 
 ### Emir
 
-- [ ] Create 5 test user accounts
-- [ ] Add profile images for test users
-- [ ] Test all user/profile features
-- [ ] Verify routing works on deployed app
-- [ ] Start writing README (team contributions section)
+- [x] Create 5 test user accounts
+- [x] Add profile images for test users
+- [x] Test all user/profile features
+- [x] Verify routing works on deployed app
+- [x] Start writing README (team contributions section)
 
 ### Krish
 
@@ -205,11 +205,11 @@
 
 ### Emir
 
-- [ ] Final testing of auth flow on deployed app
-- [ ] Final testing of profile features
-- [ ] Final testing of routing/navigation
-- [ ] Add admin credentials to README
-- [ ] Add test user credentials to README
+- [x] Final testing of auth flow on deployed app
+- [x] Final testing of profile features
+- [x] Final testing of routing/navigation
+- [x] Add admin credentials to README
+- [x] Add test user credentials to README
 
 ### Krish
 

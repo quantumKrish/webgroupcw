@@ -2,17 +2,51 @@
 
 A Django + Vue.js auction web application (eBay-like) where users can create accounts, post items for auction, bid on items, ask questions, and receive winner notifications via email.
 
+## Group Members & Contributions
+
+### Adrian (Infrastructure & Backend)
+**Assigned**: Django setup, User model, authentication, email system  
+**Delivered**: Implemented custom AbstractUser model with Django authentication framework, signup/login forms, email configuration with Gmail SMTP, email templates for automated notifications, Huey background task queue for cron jobs, automated winner determination and notification system, OpenShift deployment setup with containerization, comprehensive Python type hints throughout backend code, REST API serializers and endpoints.
+
+### Emir (Frontend Architecture & Auth)
+**Assigned**: Vue.js frontend, authentication UI, routing  
+**Delivered**: Vue 3 with TypeScript setup, Pinia global store for auth/items, Vue Router with auth guards and protected routes, signup/login form pages with validation, user profile display and edit page with Ajax, frontend type checking and TypeScript interfaces for all data models, error handling and loading states throughout, edit item page for owners to modify listings, item and Q&A deletion UI with ownership validation, comprehensive testing of all auth/profile/routing features, test user account creation.
+
+### Kirishanth (Data Models, Bidding, Items & Q&A)
+**Assigned**: Database schema, items, bidding, search, Q&A  
+**Delivered**: All core models (Item, Bid, Question, Reply, ItemImage) with comprehensive database schema, multi-image carousel with modal viewer and thumbnail navigation, item listing page with Ajax search (no page refresh), advanced filtering (all/won/ended status) and sorting (price/date), item creation API endpoint with image upload, complete bidding system with validation and bid history display, Q&A system with seller-only replies, winner banner display, auction closed state handling, comprehensive testing of entire item/bid/Q&A flow, test data creation (10+ items, sample bids, Q&A).
+
+## Deployed Application
+
+**URL**: https://auction-app-web-apps-ec22888.apps.a.comp-teach.qmul.ac.uk/
+
+## Admin & Test Credentials
+
+### Admin Account
+- **Username**: [To be added]
+- **Password**: [To be added]
+
+### Test Users (5 accounts)
+| Username | Password | Role |
+|----------|----------|-------|
+| [krish] | [webprogramming] | Seller/Buyer |
+| [Emir] | [WebGroupCW] | Seller/Buyer |
+| [Gabagool] | [WebGroupCW] | Seller/Buyer |
+| [ChosenUndead] | [WebGroupCW] | Seller/Buyer |
+| [user5] | [password] | Seller/Buyer |
+
 ## Features
 
 ### Core Functionality
 - **User Authentication**: Custom Django User model with signup/login using Django forms
 - **User Profiles**: Edit profile with image, email, and date of birth via Ajax
 - **Item Posting**: Create auction items with title, description, starting price, images, and end date/time
+- **Edit & Delete Items**: Item owners can edit item details (title, description, end date) and delete their items before auction ends
 - **Item Browsing**: List all items with search functionality (no page refresh) and advanced filters
   - **Filters**: All items, Won auctions, Ended auctions, Active auctions
   - **Sorting**: By price (high/low), date (newest/oldest)
 - **Bidding System**: Place bids on items before auction end time with validation
-- **Q&A System**: Users can ask item owners questions; owners can reply
+- **Q&A System**: Users can ask item owners questions; owners can reply and delete their Q&A posts
 - **Winner Notifications**: Automated email sent to auction winner via cron job
 - **Image Carousel**: Multi-image upload per item with fullscreen viewer and thumbnail navigation
 - **Auction Closed State**: Clear indication when bidding has ended
@@ -24,29 +58,6 @@ A Django + Vue.js auction web application (eBay-like) where users can create acc
 - **Email**: Gmail SMTP with cron job automation (Huey)
 - **Type Safety**: TypeScript interfaces + Python type annotations throughout
 
-## Team & Contributions
-
-### Adrian
-- Django custom User model & authentication framework
-- Email configuration and cron job system (Huey)
-- OpenShift deployment setup
-- Python type hints throughout backend
-
-### Emir
-- Vue Router & Pinia store architecture
-- Frontend authentication (signup/login forms)
-- User profile page with Ajax editing
-- Profile display pages
-- Frontend type checking & TypeScript
-
-### Krish
-- All database models (Item, Bid, Question, Reply, ItemImage)
-- Item listing, search, and detail pages
-- Bidding system (backend + frontend)
-- Q&A system (backend + frontend)
-- Image carousel and modal viewer
-- Item filtering and sorting
-- Winner notification frontend display
 
 ## Setup & Installation
 
@@ -90,23 +101,6 @@ npm run dev
 
 Visit `http://localhost:5173` to access the application.
 
-## Test Data
-
-### Admin Credentials
-- **Username**: admin
-- **Password**: [See team for credentials]
-
-### Test Users
-| Username | Password | Role |
-|----------|----------|------|
-| krish | password123 | Seller/Buyer |
-| edwin | password123 | Seller/Buyer |
-| Emir | WebGroupCW | Seller/Buyer |
-| Gabagool | WebGroupCW | Seller/Buyer |
-
-## Deployed Application
-- **URL**: [OpenShift deployment URL - added upon deployment]
-- **Status**: In development (OpenShift deployment in progress)
 
 ## API Endpoints
 
@@ -125,6 +119,7 @@ Visit `http://localhost:5173` to access the application.
 - `GET /api/items/` - List all items (supports search)
 - `POST /api/items/create/` - Create new item
 - `GET /api/items/<item_id>/` - Get item detail with bids & Q&A
+- `POST /api/items/<item_id>/update/` - Update item details (title, description, end date)
 - `DELETE /api/items/<item_id>/delete/` - Delete item
 
 ### Bidding
@@ -153,22 +148,6 @@ Visit `http://localhost:5173` to access the application.
 - Huey worker processes background tasks (email sending, cron jobs)
 - Images stored in `media/` directory locally
 - Email sending requires valid Gmail credentials in environment variables
-
-## OpenShift Deployment
-
-Once your project is ready to be deployed:
-
-1. Build the Vue app:
-
-    ```bash
-    # On Mac/Linux
-    npm run build
-
-    # On Windows
-    npm run build-windows
-    ```
-
-2. Follow OpenShift deployment instructions from QM+
 
 ## Known Limitations
 
