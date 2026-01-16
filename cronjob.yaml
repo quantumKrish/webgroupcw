@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: check-bids
+  namespace: web-apps-ec22888
+spec:
+  schedule: "*/2 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: django-cronjob
+              image: image-registry.openshift-image-registry.svc:5000/web-apps-ec22888/auction-app:latest
+              command: ["/bin/bash", "-c", "python manage.py check_bids"]
+              env:
+                - name: DJANGO_SETTINGS_MODULE
+                  value: project.settings
+                - name: DJANGO_SECRET_KEY
+                  value: 4IWTBmQyBtMOsHoHqncEC8U3hzY3FcCoe3UkL6zoJfMrBAVWQs
+                - name: DATABASE_ENGINE
+                  value: postgresql
+                - name: DATABASE_SERVICE_NAME
+                  value: postgresql
+                - name: DATABASE_NAME
+                  value: default
+                - name: DATABASE_USER
+                  value: django
+                - name: DATABASE_PASSWORD
+                  value: ktXWUIADrD3kbd4e
+                - name: POSTGRESQL_SERVICE_PORT
+                  value: "5432"
+                - name: POSTGRESQL_PORT_5432_TCP_ADDR
+                  value: "10.137.227.227"
+                - name: POSTGRESQL_PORT_5432_TCP_PORT
+                  value: "5432"
+                - name: POSTGRESQL_PORT_5432_TCP
+                  value: "tcp://10.137.227.227:5432"
+                - name: POSTGRESQL_SERVICE_HOST
+                  value: "10.137.227.227"
+                - name: POSTGRESQL_SERVICE_PORT_POSTGRESQL
+                  value: "5432"
+                - name: POSTGRESQL_PORT
+                  value: "tcp://10.137.227.227:5432"
+                - name: POSTGRESQL_PORT_5432_TCP_PROTO
+                  value: "tcp"
+          restartPolicy: OnFailure
