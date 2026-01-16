@@ -76,6 +76,9 @@ function formatDate(iso: string) {
     return new Date(iso).toLocaleString();
 }
 
+// Load items ending soon
+// Fetches items from /api/items/, filters and sorts them
+// Updates endingSoon, soonLoading, and soonError accordingly
 async function loadEndingSoon() {
     soonLoading.value = true;
     soonError.value = '';
