@@ -71,7 +71,10 @@
             <p class="muted">You cannot bid on your own item</p>
           </div>
         </div>
-        <div class="item-actions">
+        <div v-if="isSeller" class="item-actions">
+          <button @click="editItem" class="edit-btn" :disabled="editing">
+            {{ editing ? 'Editing…' : 'Edit Item' }}
+          </button>
           <button @click="deleteItem" class="delete-btn" :disabled="deleting">
             {{ deleting ? 'Deleting…' : 'Delete Item' }}
           </button>
@@ -105,14 +108,7 @@
                 </span>
                 {{ bid.bidder_name }}
               </RouterLink>
-              <button 
-                v-if="auth.user && auth.user.id === bid.bidder" 
-                @click="deleteBid(bid.id)" 
-                class="delete-btn-small"
-                title="Delete bid"
-              >
-                ×
-              </button>
+
             </div>
           </li>
         </ul>
@@ -249,7 +245,7 @@
 
 <script lang="ts" setup>
 import { onMounted, reactive, ref, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import type { Item, Bid, Question, Reply } from '../types';
 
@@ -262,12 +258,13 @@ interface ItemDetail extends Item {
 }
 
 const route = useRoute();
+const router = useRouter();
 const auth = useAuthStore();
 const item = ref<ItemDetail | null>(null);
 const loading = ref(true);
 const error = ref('');
 
-const isSeller = computed(() => auth.user && item.value ? auth.user.id === item.value.owner : false);
+const isSeller = computed(() => auth.user && item.value ? Number(auth.user.id) === Number(item.value.owner) : false);
 const isLoggedIn = computed(() => auth.isAuthenticated);
 const hasEnded = computed(() => item.value ? new Date(item.value.ends_at).getTime() < Date.now() : false);
 const imagesToShow = computed(() => {
@@ -295,6 +292,7 @@ const qaSubmitting = ref(false);
 const qaError = ref('');
 
 const deleting = ref(false);
+const editing = ref(false);
 
 const showImageModal = ref(false);
 const modalImageIdx = ref(0);
@@ -416,6 +414,11 @@ async function submitReply(questionId: number) {
   }
 }
 
+async function editItem() {
+  if (!item.value) return;
+  router.push({ name: 'Edit Item', params: { id: item.value.id } });
+}
+
 async function deleteItem() {
   if (!item.value) return;
   if (!confirm(`Are you sure you want to delete "${item.value.title}"?`)) return;
@@ -433,20 +436,6 @@ async function deleteItem() {
     alert(e instanceof Error ? e.message : 'Failed to delete item');
   } finally {
     deleting.value = false;
-  }
-}
-
-async function deleteBid(bidId: number) {
-  if (!confirm('Are you sure you want to delete this bid?')) return;
-  
-  try {
-    const res = await fetch(`/api/bids/${bidId}/delete/`, {
-      method: 'DELETE',
-    });
-    if (!res.ok) throw new Error('Failed to delete bid');
-    await fetchItem(); // Refresh to show updated bid list
-  } catch (e) {
-    alert(e instanceof Error ? e.message : 'Failed to delete bid');
   }
 }
 
@@ -928,6 +917,18 @@ h1 { margin: 0 0 0.35rem; }
   margin-top: 1.5rem;
   padding-top: 1rem;
   border-top: 1px solid #e5e7eb;
+}
+
+.edit-btn {
+  padding: 0.65rem 1.2rem;
+  background: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+  margin-right: 1rem;
 }
 
 .delete-btn {

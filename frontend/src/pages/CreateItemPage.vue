@@ -1,6 +1,7 @@
 <template>
   <div class="create-item-page">
-    <h1>Post New Auction Item</h1>
+    <h1 v-if="isEditMode">Edit Auction Item</h1>
+    <h1 v-else>Post New Auction Item</h1>
 
     <div v-if="!isLoggedIn" class="placeholder">
       <p class="muted"><a href="/login/">Log in</a> to post an auction item</p>
@@ -33,21 +34,29 @@
 
       <!-- Starting Price -->
       <div class="form-group">
-        <label for="starting_price">Starting Price ($) *</label>
+        <label for="starting_price">
+          <span v-if="isEditMode">Starting Price (Fixed)</span>
+          <span v-else>Starting Price ($) *</span>
+        </label>
         <input
           id="starting_price"
           v-model="form.starting_price"
           type="number"
           step="0.01"
           min="0"
-          required
+          :readonly="isEditMode"
+          :required="!isEditMode"
           placeholder="0.00"
         />
+        <p v-if="isEditMode" class="field-info">Current highest bid: ${{ currentPrice }}</p>
       </div>
 
       <!-- Image Upload Drag & Drop -->
       <div class="form-group">
-        <label>Item Image *</label>
+        <label>
+          <span v-if="isEditMode">Item Image (Leave blank to keep current)</span>
+          <span v-else>Item Image *</span>
+        </label>
         <div
           class="dropzone"
           :class="{ 'dragover': isDragging, 'has-image': imagePreview }"
@@ -70,7 +79,7 @@
             </button>
           </div>
           <div v-else class="dropzone-content">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16" >
               <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
               <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/>
             </svg>
@@ -104,7 +113,8 @@
           id="ends_at"
           v-model="form.ends_at"
           type="datetime-local"
-          required
+          :readonly="isEditMode"
+          :required="!isEditMode"
         />
       </div>
 
@@ -120,8 +130,8 @@
 
       <!-- Submit Button -->
       <div class="form-actions">
-        <button type="submit" :disabled="submitting || !form.image" class="submit-btn">
-          {{ submitting ? 'Posting...' : 'Post Item' }}
+        <button type="submit" :disabled="submitting || (!isEditMode && !form.image)" class="submit-btn">
+          {{ submitting ? (isEditMode ? 'Updating...' : 'Posting...') : (isEditMode ? 'Update Item' : 'Post Item') }}
         </button>
       </div>
     </form>
@@ -132,14 +142,16 @@
 import { defineComponent } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 
 export default defineComponent({
   name: 'CreateItemPage',
   
   setup() {
     const auth = useAuthStore();
+    const route = useRoute();
     const isLoggedIn = computed(() => auth.isAuthenticated);
-    return { isLoggedIn };
+    return { isLoggedIn, route };
   },
 
   data() {
@@ -158,10 +170,56 @@ export default defineComponent({
       submitting: false,
       error: '',
       success: false,
+      loading: false,
+      currentPrice: '0.00',
+      existingImageUrl: '',
+      isEditMode: false,
     };
   },
 
+  watch: {
+    'route.params.id': {
+      handler(newId) {
+        this.isEditMode = !!newId;
+      },
+      immediate: true,
+    },
+  },
+
+  async mounted() {
+    if (this.isEditMode) {
+      await this.loadItemData();
+    }
+  },
+
   methods: {
+    async loadItemData() {
+      this.loading = true;
+      this.error = '';
+      try {
+        const response = await fetch(`/api/items/${this.route.params.id}/`);
+        if (!response.ok) throw new Error('Failed to load item');
+        const data = await response.json();
+        
+        this.form.title = data.title;
+        this.form.description = data.description;
+        this.form.starting_price = data.starting_price;
+        this.form.ends_at = data.ends_at.slice(0, 16); // Convert to datetime-local format
+        this.currentPrice = data.current_price;
+        this.existingImageUrl = data.image_url;
+        this.imagePreview = data.image_url;
+        
+        // Load extra images if available
+        if (data.images && data.images.length > 1) {
+          this.extraPreviews = data.images.slice(1);
+        }
+      } catch (err) {
+        this.error = err instanceof Error ? err.message : 'Failed to load item';
+      } finally {
+        this.loading = false;
+      }
+    },
+
     triggerFileInput() {
       (this.$refs.fileInput as HTMLInputElement).click();
     },
@@ -219,7 +277,7 @@ export default defineComponent({
     },
 
     async submitItem() {
-      if (!this.form.image) {
+      if (!this.isEditMode && !this.form.image) {
         this.error = 'Please select an image';
         return;
       }
@@ -234,44 +292,52 @@ export default defineComponent({
         formData.append('description', this.form.description);
         formData.append('starting_price', this.form.starting_price);
         formData.append('ends_at', this.form.ends_at);
-        formData.append('image', this.form.image);
+        if (this.form.image) {
+          formData.append('image', this.form.image);
+        }
         this.form.extra_images.forEach((img) => formData.append('extra_images', img));
 
-        const response = await fetch('/api/items/create/', {
+        const endpoint = this.isEditMode 
+          ? `/api/items/${this.route.params.id}/update/`
+          : '/api/items/create/';
+
+        const response = await fetch(endpoint, {
           method: 'POST',
           body: formData,
         });
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to create item');
+          throw new Error(errorData.error || `Failed to ${this.isEditMode ? 'update' : 'create'} item`);
         }
 
         const data = await response.json();
-        console.log('Item created:', data);
+        console.log('Item saved:', data);
         
         this.success = true;
         
-        // Reset form
-        this.form = {
-          title: '',
-          description: '',
-          starting_price: '',
-          image: null,
-          extra_images: [],
-          ends_at: '',
-        };
-        this.imagePreview = '';
-        this.extraPreviews = [];
+        // Reset form if creating new
+        if (!this.isEditMode) {
+          this.form = {
+            title: '',
+            description: '',
+            starting_price: '',
+            image: null,
+            extra_images: [],
+            ends_at: '',
+          };
+          this.imagePreview = '';
+          this.extraPreviews = [];
+        }
 
         // Redirect after a delay
         setTimeout(() => {
-          this.$router.push('/items');
+          this.$router.push(`/items/${data.id}/`);
         }, 1500);
 
       } catch (err) {
-        this.error = err instanceof Error ? err.message : 'Failed to post item';
-        console.error('Error creating item:', err);
+        this.error = err instanceof Error ? err.message : `Failed to ${this.isEditMode ? 'update' : 'post'} item`;
+        console.error('Error saving item:', err);
       } finally {
         this.submitting = false;
       }
@@ -348,6 +414,22 @@ h1 {
 .form-group textarea:focus {
   outline: none;
   border-color: #4CAF50;
+}
+
+.form-group input:disabled,
+.form-group textarea:disabled,
+.form-group input:read-only,
+.form-group textarea:read-only {
+  background: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.field-info {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.25rem;
+  margin-bottom: 0;
 }
 
 .error-message {

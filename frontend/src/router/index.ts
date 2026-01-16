@@ -23,6 +23,7 @@ const router = createRouter({
         { path: '/', name: 'Main Page', component: MainPage },
         { path: '/items/', name: 'Items', component: ItemListPage },
         { path: '/items/create/', name: 'Create Item', component: CreateItemPage },
+        { path: '/items/create/:id', name: 'Edit Item', component: CreateItemPage, props: true },
         { path: '/items/:id/', name: 'Item Detail', component: ItemDetailPage, props: true },
         { path: '/profile/', name: 'Profile', component: ProfilePage, meta: { requiresAuth: true } },
         { path: '/users/:id/', name: 'User Profile', component: ProfileDisplayPage, props: true },
