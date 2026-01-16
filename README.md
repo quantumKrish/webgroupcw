@@ -23,8 +23,8 @@ A Django + Vue.js auction web application (eBay-like) where users can create acc
 ## Admin & Test Credentials
 
 ### Admin Account
-- **Username**: [To be added]
-- **Password**: [To be added]
+- **Username**: [admin]
+- **Password**: [admin]
 
 ### Test Users (5 accounts)
 | Username | Password | Role |
@@ -33,7 +33,7 @@ A Django + Vue.js auction web application (eBay-like) where users can create acc
 | [Emir] | [WebGroupCW] | Seller/Buyer |
 | [Gabagool] | [WebGroupCW] | Seller/Buyer |
 | [ChosenUndead] | [WebGroupCW] | Seller/Buyer |
-| [user5] | [password] | Seller/Buyer |
+| [Adrian] | [WebGroupCW] | Seller/Buyer |
 
 ## Features
 
