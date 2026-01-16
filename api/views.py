@@ -19,14 +19,14 @@ from .models import Profile, Item, ItemImage, Bid, Question, Reply
 def get_frontend_url():
     return os.getenv('FRONTEND_URL', 'http://localhost:5173')
 
+def clean_url(url: string) -> string:
+    return url.split("?")[0]
+
 def build_absolute_url(request: HttpRequest, url: str) -> str:
     """Build absolute URL, handling both relative and absolute (S3) URLs."""
     if not url:
         return ''
     # If URL already starts with http, it's absolute (e.g., S3 URL), return as-is
-    url = url.split("?")[0]
-    url = urlparse(url)._replace(query="").geturl()
-
     if url.startswith('http'):
         return url
     # Otherwise, make it absolute relative to the request
@@ -113,7 +113,7 @@ def profile(request: HttpRequest):
             "first_name": user.first_name,
             "last_name": user.last_name,
             "date_of_birth": profile.date_of_birth or "",
-            "profile_image_url": profile_image_url,
+            "profile_image_url": clean_url(profile_image_url),
         })
 
     # POST method - update profile
@@ -142,7 +142,7 @@ def profile(request: HttpRequest):
             "first_name": user.first_name,
             "last_name": user.last_name,
             "date_of_birth": str(profile.date_of_birth) if profile.date_of_birth else "",
-            "profile_image_url": profile_image_url,
+            "profile_image_url": clean_url(profile_image_url),
         })
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
@@ -173,7 +173,7 @@ def user_info(request: HttpRequest):
         'id': user.id,
         'username': user.username,
         'email': user.email,
-        'profile_image_url': profile_image_url,
+        'profile_image_url': clean_url(profile_image_url),
         'authenticated': True,
         'won_items': won_items,
     })
@@ -233,7 +233,7 @@ def user_profile_display(request: HttpRequest, user_id: int) -> JsonResponse:
                 'first_name': user.first_name,
                 'last_name': user.last_name,
                 'date_of_birth': str(profile.date_of_birth) if profile.date_of_birth else '',
-                'profile_image_url': profile_image_url,
+                'profile_image_url': clean_url(profile_image_url),
             },
             'items': items_data,
             'bids': bids_data,
