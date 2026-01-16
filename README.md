@@ -10,7 +10,7 @@ A Django + Vue.js auction web application (eBay-like) where users can create acc
 
 ### Emir (Frontend Architecture & Auth)
 **Assigned**: Vue.js frontend, authentication UI, routing  
-**Delivered**: Vue 3 with TypeScript setup, Pinia global store for auth/items, Vue Router with auth guards, signup/login form pages, user profile display and edit page with Ajax, frontend type checking and TypeScript interfaces for all data models.
+**Delivered**: Vue 3 with TypeScript setup, Pinia global store for auth/items, Vue Router with auth guards, signup/login form pages, user profile display and edit page with Ajax, frontend type checking and TypeScript interfaces for all data models, edit item page for owners, item and Q&A deletion UI with ownership validation.
 
 ### Kirishanth (Data Models, Bidding, Items & Q&A)
 **Assigned**: Database schema, items, bidding, search, Q&A  
@@ -41,11 +41,12 @@ A Django + Vue.js auction web application (eBay-like) where users can create acc
 - **User Authentication**: Custom Django User model with signup/login using Django forms
 - **User Profiles**: Edit profile with image, email, and date of birth via Ajax
 - **Item Posting**: Create auction items with title, description, starting price, images, and end date/time
+- **Edit & Delete Items**: Item owners can edit item details (title, description, end date) and delete their items before auction ends
 - **Item Browsing**: List all items with search functionality (no page refresh) and advanced filters
   - **Filters**: All items, Won auctions, Ended auctions, Active auctions
   - **Sorting**: By price (high/low), date (newest/oldest)
 - **Bidding System**: Place bids on items before auction end time with validation
-- **Q&A System**: Users can ask item owners questions; owners can reply
+- **Q&A System**: Users can ask item owners questions; owners can reply and delete their Q&A posts
 - **Winner Notifications**: Automated email sent to auction winner via cron job
 - **Image Carousel**: Multi-image upload per item with fullscreen viewer and thumbnail navigation
 - **Auction Closed State**: Clear indication when bidding has ended
@@ -118,6 +119,7 @@ Visit `http://localhost:5173` to access the application.
 - `GET /api/items/` - List all items (supports search)
 - `POST /api/items/create/` - Create new item
 - `GET /api/items/<item_id>/` - Get item detail with bids & Q&A
+- `POST /api/items/<item_id>/update/` - Update item details (title, description, end date)
 - `DELETE /api/items/<item_id>/delete/` - Delete item
 
 ### Bidding
