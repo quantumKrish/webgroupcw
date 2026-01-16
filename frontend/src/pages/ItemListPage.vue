@@ -131,6 +131,12 @@ export default defineComponent({
   },
 
   methods: {
+    // Fetch items from the API with optional search query
+    // Updates loading and error states accordingly
+    // Populates the items array on success
+    // Called on component mount and on search input
+    // Uses /api/items/?search= endpoint when search query is provided
+    // Otherwise fetches all items from /api/items/
     async fetchItems(search = '') {
       this.loading = true;
       this.error = '';
@@ -156,6 +162,9 @@ export default defineComponent({
       }
     },
 
+    // Handle input event on search box
+    // Debounces the input to avoid excessive API calls
+    // Calls fetchItems with the current search query after a delay
     onSearchInput() {
       // Debounce search to avoid excessive API calls
       if (this.searchTimeout) {

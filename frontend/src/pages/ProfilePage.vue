@@ -135,6 +135,10 @@ onMounted(async () => {
   await loadProfile();
 });
 
+// Load user profile data from API
+// Fetches from /api/profile/
+// Populates form fields
+// Handles loading and error state
 async function loadProfile() {
   try {
     loading.value = true;
@@ -164,6 +168,9 @@ async function loadProfile() {
   }
 }
 
+// Handle profile image file upload
+// Updates form.profile_image and form.profile_image_preview
+// Called on file input change event
 function handleImageUpload(event: Event) {
   const target = event.target as HTMLInputElement;
   const files = target.files;
@@ -184,6 +191,8 @@ function triggerFileInput() {
   fileInput.value?.click();
 }
 
+// Handle drag-and-drop file upload
+// Updates form.profile_image and form.profile_image_preview
 function handleDrop(event: DragEvent) {
   isDragging.value = false;
   const file = event.dataTransfer?.files?.[0];
@@ -197,12 +206,17 @@ function handleDrop(event: DragEvent) {
   }
 }
 
+// Remove selected profile image
 function removeImage() {
   form.value.profile_image = null;
   form.value.profile_image_preview = undefined;
   if (fileInput.value) fileInput.value.value = '';
 }
 
+// Update user profile data via API
+// Sends POST request to /api/profile/
+// Includes form data and profile image if provided
+// Handles saving, error, and success states
 async function updateProfile() {
   try {
     saving.value = true;

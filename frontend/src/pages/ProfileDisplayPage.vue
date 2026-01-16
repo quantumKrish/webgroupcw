@@ -161,6 +161,10 @@ onMounted(async () => {
   await loadUserProfile();
 });
 
+// Load user profile data from API
+// Fetches from /api/users/:id/
+// Populates user, userItems, and userBids
+// Handles loading and error state
 async function loadUserProfile() {
   try {
     loading.value = true;

@@ -297,6 +297,10 @@ const editing = ref(false);
 const showImageModal = ref(false);
 const modalImageIdx = ref(0);
 
+// Fetch item details from API when page loads
+// Makes GET request to /api/items/:id/
+// Populates item ref with data
+// Handles loading and error states
 async function fetchItem() {
   loading.value = true;
   error.value = '';
@@ -313,6 +317,7 @@ async function fetchItem() {
   }
 }
 
+// Image carousel controls
 function prevImage() {
   const total = imagesToShow.value.length;
   if (total < 2) return;
@@ -325,6 +330,7 @@ function nextImage() {
   currentImageIdx.value = (currentImageIdx.value + 1) % total;
 }
 
+// Image modal controls
 function openImageModal(idx: number) {
   modalImageIdx.value = idx;
   showImageModal.value = true;
@@ -351,6 +357,10 @@ function formatDate(iso: string | undefined) {
   return new Date(iso).toLocaleString();
 }
 
+// Place a bid on the item
+// Makes POST request to /api/bids/create/ with item ID and bid amount
+// Clears the bid input field and refreshes item details on success
+// Calls fetchItem to refresh bid history
 async function placeBid() {
   if (!item.value) return;
   bidSubmitting.value = true;
@@ -372,6 +382,10 @@ async function placeBid() {
   }
 }
 
+// Submit a question on the item
+// POSTs to /api/questions/create/ with item ID and question content
+// Clears input and refreshes item details on success
+// Calls fetchItem to refresh Q&A list
 async function submitQuestion() {
   if (!item.value || !questionText.value.trim()) return;
   qaSubmitting.value = true;
@@ -393,6 +407,10 @@ async function submitQuestion() {
   }
 }
 
+// Submit a reply to a question
+// Makes POST request to /api/replies/create/ with question ID and reply content
+// Clears the reply input field and refreshes item details on success
+// Calls fetchItem to refresh Q&A list
 async function submitReply(questionId: number) {
   if (!item.value || !replyText[questionId]?.trim()) return;
   qaSubmitting.value = true;
@@ -414,11 +432,14 @@ async function submitReply(questionId: number) {
   }
 }
 
+// Edit item - navigates to edit page
 async function editItem() {
   if (!item.value) return;
   router.push({ name: 'Edit Item', params: { id: item.value.id } });
 }
 
+// Delete item - makes DELETE request to /api/items/:id/delete/
+// Redirects to items list on success
 async function deleteItem() {
   if (!item.value) return;
   if (!confirm(`Are you sure you want to delete "${item.value.title}"?`)) return;
@@ -439,6 +460,8 @@ async function deleteItem() {
   }
 }
 
+// Delete a question by ID
+// Makes DELETE request to /api/questions/:id/delete/
 async function deleteQuestion(questionId: number) {
   if (!confirm('Are you sure you want to delete this question?')) return;
   
@@ -453,6 +476,8 @@ async function deleteQuestion(questionId: number) {
   }
 }
 
+// Delete a reply by ID
+// Makes DELETE request to /api/replies/:id/delete/
 async function deleteReply(replyId: number) {
   if (!confirm('Are you sure you want to delete this reply?')) return;
   
