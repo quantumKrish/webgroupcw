@@ -101,7 +101,7 @@ Visit `http://localhost:5173` to access the application.
 |----------|----------|------|
 | krish | password123 | Seller/Buyer |
 | edwin | password123 | Seller/Buyer |
-| emir | password123 | Seller/Buyer |
+| Emir | WebGroupCW | Seller/Buyer |
 
 ## Deployed Application
 - **URL**: [OpenShift deployment URL - added upon deployment]
