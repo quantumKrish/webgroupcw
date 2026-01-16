@@ -2,6 +2,39 @@
 
 A Django + Vue.js auction web application (eBay-like) where users can create accounts, post items for auction, bid on items, ask questions, and receive winner notifications via email.
 
+## Group Members & Contributions
+
+### Adrian (Infrastructure & Backend)
+**Assigned**: Django setup, User model, authentication, email system  
+**Delivered**: Implemented custom AbstractUser model, signup/login forms, email configuration with Gmail SMTP, Huey background task queue for cron jobs, winner notification system, OpenShift deployment setup, Python type hints throughout backend code.
+
+### Emir (Frontend Architecture & Auth)
+**Assigned**: Vue.js frontend, authentication UI, routing  
+**Delivered**: Vue 3 with TypeScript setup, Pinia global store for auth/items, Vue Router with auth guards, signup/login form pages, user profile display and edit page with Ajax, frontend type checking and TypeScript interfaces for all data models.
+
+### Kirishanth (Data Models, Bidding, Items & Q&A)
+**Assigned**: Database schema, items, bidding, search, Q&A  
+**Delivered**: All core models (Item, Bid, Question, Reply, ItemImage), multi-image carousel with modal viewer, item listing with search and filters (all/won/ended status, price/date sorting), complete bidding system with validation, Q&A with seller-only replies, winner banner display, auction closed state handling.
+
+## Deployed Application
+
+**URL**: https://auction-app-web-apps-ec22888.apps.a.comp-teach.qmul.ac.uk/
+
+## Admin & Test Credentials
+
+### Admin Account
+- **Username**: [To be added]
+- **Password**: [To be added]
+
+### Test Users (5 accounts)
+| Username | Password | Role |
+|----------|----------|-------|
+| [krish] | [webprogramming] | Seller/Buyer |
+| [Emir] | [WebGroupCW] | Seller/Buyer |
+| [Gabagool] | [WebGroupCW] | Seller/Buyer |
+| [ChosenUndead] | [WebGroupCW] | Seller/Buyer |
+| [user5] | [password] | Seller/Buyer |
+
 ## Features
 
 ### Core Functionality
@@ -24,29 +57,6 @@ A Django + Vue.js auction web application (eBay-like) where users can create acc
 - **Email**: Gmail SMTP with cron job automation (Huey)
 - **Type Safety**: TypeScript interfaces + Python type annotations throughout
 
-## Team & Contributions
-
-### Adrian
-- Django custom User model & authentication framework
-- Email configuration and cron job system (Huey)
-- OpenShift deployment setup
-- Python type hints throughout backend
-
-### Emir
-- Vue Router & Pinia store architecture
-- Frontend authentication (signup/login forms)
-- User profile page with Ajax editing
-- Profile display pages
-- Frontend type checking & TypeScript
-
-### Krish
-- All database models (Item, Bid, Question, Reply, ItemImage)
-- Item listing, search, and detail pages
-- Bidding system (backend + frontend)
-- Q&A system (backend + frontend)
-- Image carousel and modal viewer
-- Item filtering and sorting
-- Winner notification frontend display
 
 ## Setup & Installation
 
@@ -90,6 +100,7 @@ npm run dev
 
 Visit `http://localhost:5173` to access the application.
 
+<<<<<<< HEAD
 ## Test Data
 
 ### Admin Credentials
@@ -107,6 +118,8 @@ Visit `http://localhost:5173` to access the application.
 ## Deployed Application
 - **URL**: [OpenShift deployment URL - added upon deployment]
 - **Status**: In development (OpenShift deployment in progress)
+=======
+>>>>>>> krish
 
 ## API Endpoints
 
@@ -153,22 +166,6 @@ Visit `http://localhost:5173` to access the application.
 - Huey worker processes background tasks (email sending, cron jobs)
 - Images stored in `media/` directory locally
 - Email sending requires valid Gmail credentials in environment variables
-
-## OpenShift Deployment
-
-Once your project is ready to be deployed:
-
-1. Build the Vue app:
-
-    ```bash
-    # On Mac/Linux
-    npm run build
-
-    # On Windows
-    npm run build-windows
-    ```
-
-2. Follow OpenShift deployment instructions from QM+
 
 ## Known Limitations
 
