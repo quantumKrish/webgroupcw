@@ -6,7 +6,7 @@ A Django + Vue.js auction web application (eBay-like) where users can create acc
 
 ### Adrian (Infrastructure & Backend)
 **Assigned**: Django setup, User model, authentication, email system  
-**Delivered**: Custom User model with authentication, Huey task queue for automated winner emails, OpenShift deployment with S3 storage, Python type hints throughout backend.
+**Delivered**: Custom User model with authentication, cron job YAML task queue for automated winner emails, OpenShift deployment with S3 storage, Python type hints throughout backend.
 
 ### Emir (Frontend Architecture & Auth)
 **Assigned**: Vue.js frontend, authentication UI, routing  
@@ -55,7 +55,7 @@ A Django + Vue.js auction web application (eBay-like) where users can create acc
 - **Frontend**: Vue 3 with TypeScript, Pinia store, Vue Router, Vite
 - **Backend**: Django 5.2.6 with type hints, REST API endpoints
 - **Database**: SQLite (development) / PostgreSQL (production ready)
-- **Email**: Gmail SMTP with cron job automation (Huey)
+- **Email**: Gmail SMTP with cron job automation (Openshift YAML)
 - **Type Safety**: TypeScript interfaces + Python type annotations throughout
 
 
@@ -137,7 +137,7 @@ Visit `http://localhost:5173` to access the application.
 - **TypeScript** - Static typing for JavaScript
 - **Pinia** - Vue state management
 - **Vite** - Frontend build tool
-- **Huey** - Task queue for cron jobs
+- **Openshift YAML** - Task queue for cron jobs
 - **Pillow** - Image processing
 - **SQLite/PostgreSQL** - Database
 
@@ -145,14 +145,14 @@ Visit `http://localhost:5173` to access the application.
 
 - Frontend runs on `http://localhost:5173` with Vite dev server
 - Backend API runs on `http://localhost:8000`
-- Huey worker processes background tasks (email sending, cron jobs)
+- YAML worker processes background tasks (email sending, cron jobs)
 - Images stored in `media/` directory locally
 - Email sending requires valid Gmail credentials in environment variables
 
 ## Known Limitations
 
 - Email sending in development requires valid SMTP credentials
-- Huey cron jobs run on a schedule (not real-time)
+- YAML cron jobs run on a schedule (not real-time)
 - Images limited to 5MB per file
 - SQLite for local development only (use PostgreSQL for production)
 
