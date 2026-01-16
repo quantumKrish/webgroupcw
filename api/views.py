@@ -211,7 +211,7 @@ def user_profile_display(request: HttpRequest, user_id: int) -> JsonResponse:
                 'id': item.id,
                 'title': item.title,
                 'current_price': current_price,
-                'image_url': image_url,
+                'image_url': clean_url(image_url),
                 'ends_at': item.ends_at.isoformat(),
             })
         
