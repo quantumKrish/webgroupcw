@@ -593,7 +593,7 @@ def item_detail(request: HttpRequest, item_id: int) -> JsonResponse:
                 'id': b.id,
                 'bidder': b.bidder.id,
                 'bidder_name': b.bidder.username,
-                'bidder_profile_image': bidder_profile_image,
+                'bidder_profile_image': clean_url(bidder_profile_image),
                 'amount': str(b.amount),
                 'created_at': b.created_at.isoformat(),
             })
@@ -616,7 +616,7 @@ def item_detail(request: HttpRequest, item_id: int) -> JsonResponse:
                     'id': r.id,
                     'author': r.author.id,
                     'author_name': r.author.username,
-                    'author_profile_image': author_profile_image,
+                    'author_profile_image': clean_url(author_profile_image),
                     'content': r.content,
                     'created_at': r.created_at.isoformat(),
                 })
@@ -625,7 +625,7 @@ def item_detail(request: HttpRequest, item_id: int) -> JsonResponse:
                 'id': q.id,
                 'asker': q.asker.id,
                 'asker_name': q.asker.username,
-                'asker_profile_image': asker_profile_image,
+                'asker_profile_image': clean_url(asker_profile_image),
                 'content': q.content,
                 'created_at': q.created_at.isoformat(),
                 'replies': replies_data,
