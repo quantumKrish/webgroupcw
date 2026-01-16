@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings 
 from decimal import Decimal
+from urllib.parse import urlparse
 import json
 
 from .forms import UserSignUpForm, UserLoginForm
@@ -23,7 +24,7 @@ def build_absolute_url(request: HttpRequest, url: str) -> str:
     if not url:
         return ''
     # If URL already starts with http, it's absolute (e.g., S3 URL), return as-is
-    url = url.split("?")[0]
+    url = urlparse(url)._replace(query="").geturl()
 
     if url.startswith('http'):
         return url
