@@ -19,7 +19,9 @@ from .models import Profile, Item, ItemImage, Bid, Question, Reply
 def get_frontend_url():
     return os.getenv('FRONTEND_URL', 'http://localhost:5173')
 
-def clean_url(url: str) -> str:
+def clean_url(url):
+    if not url:
+        return url
     return url.split("?")[0]
 
 def build_absolute_url(request: HttpRequest, url: str) -> str:
@@ -113,7 +115,7 @@ def profile(request: HttpRequest):
             "first_name": user.first_name,
             "last_name": user.last_name,
             "date_of_birth": profile.date_of_birth or "",
-            "profile_image_url": "gooch",
+            "profile_image_url": clean_url(profile_image_url),
         })
 
     # POST method - update profile
@@ -142,7 +144,7 @@ def profile(request: HttpRequest):
             "first_name": user.first_name,
             "last_name": user.last_name,
             "date_of_birth": str(profile.date_of_birth) if profile.date_of_birth else "",
-            "profile_image_url": "gooch",
+            "profile_image_url": clean_url(profile_image_url),
         })
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
@@ -165,7 +167,7 @@ def user_info(request: HttpRequest):
             won_items.append({
                 'id': item.id,
                 'title': item.title,
-                'image_url': image_url,
+                'image_url': clean_url(image_url),
                 'final_price': str(item.current_price),
             })
     
@@ -173,7 +175,7 @@ def user_info(request: HttpRequest):
         'id': user.id,
         'username': user.username,
         'email': user.email,
-        'profile_image_url': "gooch",
+        'profile_image_url': clean_url(profile_image_url),
         'authenticated': True,
         'won_items': won_items,
     })
@@ -233,7 +235,7 @@ def user_profile_display(request: HttpRequest, user_id: int) -> JsonResponse:
                 'first_name': user.first_name,
                 'last_name': user.last_name,
                 'date_of_birth': str(profile.date_of_birth) if profile.date_of_birth else '',
-                'profile_image_url': "gooch",
+                'profile_image_url': clean_url(profile_image_url),
             },
             'items': items_data,
             'bids': bids_data,
@@ -280,7 +282,7 @@ def item_list(request: HttpRequest) -> JsonResponse:
                     'description': item.description,
                     'starting_price': str(item.starting_price),
                     'current_price': current_price,
-                    'image_url': image_url,
+                    'image_url': clean_url(image_url),
                     'ends_at': item.ends_at.isoformat(),
                     'created_at': item.created_at.isoformat(),
                     'updated_at': item.updated_at.isoformat(),
@@ -369,9 +371,9 @@ def item_create(request: HttpRequest) -> JsonResponse:
             'description': item.description,
             'starting_price': str(item.starting_price),
             'current_price': str(item.current_price),
-            'image_url': final_image_url,
+            'image_url': clean_url(final_image_url),
             'images': [
-                build_absolute_url(request, img.image.url)
+                clean_url(build_absolute_url(request, img.image.url))
                 for img in item.images.all()
             ],
             'ends_at': item.ends_at.isoformat(),
@@ -457,7 +459,7 @@ def item_update(request: HttpRequest, item_id: int) -> JsonResponse:
         # Get final image URL (prefer primary ItemImage)
         final_image_url = get_image_url(request, item)
         images = [
-            build_absolute_url(request, img.image.url)
+            clean_url(build_absolute_url(request, img.image.url))
             for img in item.images.all()
         ]
         
@@ -469,7 +471,7 @@ def item_update(request: HttpRequest, item_id: int) -> JsonResponse:
             'description': item.description,
             'starting_price': str(item.starting_price),
             'current_price': str(current_price),
-            'image_url': final_image_url,
+            'image_url': clean_url(final_image_url),
             'images': images,
             'ends_at': item.ends_at.isoformat(),
             'created_at': item.created_at.isoformat(),
