@@ -19,13 +19,23 @@ from .models import Profile, Item, ItemImage, Bid, Question, Reply
 def get_frontend_url():
     return os.getenv('FRONTEND_URL', 'http://localhost:5173')
 
+def build_absolute_url(request: HttpRequest, url: str) -> str:
+    """Build absolute URL, handling both relative and absolute (S3) URLs."""
+    if not url:
+        return ''
+    # If URL already starts with http, it's absolute (e.g., S3 URL), return as-is
+    if url.startswith('http'):
+        return url
+    # Otherwise, make it absolute relative to the request
+    return request.build_absolute_uri(url)
+
 def get_image_url(request: HttpRequest, item: Item) -> str:
     """Build absolute URL for item image."""
     primary_image = item.images.first() if hasattr(item, 'images') else None
     if primary_image:
-        return request.build_absolute_uri(primary_image.image.url)
+        return build_absolute_url(request, primary_image.image.url)
     if item.image:
-        return request.build_absolute_uri(item.image.url)
+        return build_absolute_url(request, item.image.url)
     if item.image_url:
         return item.image_url
     return ''
@@ -92,7 +102,7 @@ def profile(request: HttpRequest):
     profile, _ = Profile.objects.get_or_create(user=user)
 
     if request.method == "GET":
-        profile_image_url = request.build_absolute_uri(profile.profile_image.url) if profile.profile_image else None
+        profile_image_url = build_absolute_url(request, profile.profile_image.url) if profile.profile_image else None
         return JsonResponse({
             "id": user.id,
             "username": user.username,
@@ -121,7 +131,7 @@ def profile(request: HttpRequest):
 
         profile.save()
 
-        profile_image_url = request.build_absolute_uri(profile.profile_image.url) if profile.profile_image else None
+        profile_image_url = build_absolute_url(request, profile.profile_image.url) if profile.profile_image else None
         return JsonResponse({
             "success": True,
             "username": user.username,
@@ -141,14 +151,14 @@ def user_info(request: HttpRequest):
         return JsonResponse({'authenticated': False}, status=401)
     user = request.user
     profile, _ = Profile.objects.get_or_create(user=user)
-    profile_image_url = request.build_absolute_uri(profile.profile_image.url) if profile.profile_image else None
+    profile_image_url = build_absolute_url(request, profile.profile_image.url) if profile.profile_image else None
     
     # Get won auctions (if winner field exists)
     won_items = []
     if hasattr(Item, 'winner'):
         won_auctions = Item.objects.filter(winner=user, winner_email_sent=True)
         for item in won_auctions:
-            image_url = request.build_absolute_uri(item.image.url) if item.image else (item.image_url or '')
+            image_url = build_absolute_url(request, item.image.url) if item.image else (item.image_url or '')
             won_items.append({
                 'id': item.id,
                 'title': item.title,
@@ -177,7 +187,7 @@ def user_profile_display(request: HttpRequest, user_id: int) -> JsonResponse:
     
     try:
         profile, _ = Profile.objects.get_or_create(user=user)
-        profile_image_url = request.build_absolute_uri(profile.profile_image.url) if profile.profile_image else None
+        profile_image_url = build_absolute_url(request, profile.profile_image.url) if profile.profile_image else None
         
         # Get user's items
         user_items = Item.objects.filter(owner=user).order_by('-created_at')[:10]
@@ -185,7 +195,7 @@ def user_profile_display(request: HttpRequest, user_id: int) -> JsonResponse:
         for item in user_items:
             image_url = ''
             if item.image:
-                image_url = request.build_absolute_uri(item.image.url)
+                image_url = build_absolute_url(request, item.image.url)
             elif item.image_url:
                 image_url = item.image_url
             
@@ -358,7 +368,7 @@ def item_create(request: HttpRequest) -> JsonResponse:
             'current_price': str(item.current_price),
             'image_url': final_image_url,
             'images': [
-                request.build_absolute_uri(img.image.url)
+                build_absolute_url(request, img.image.url)
                 for img in item.images.all()
             ],
             'ends_at': item.ends_at.isoformat(),
@@ -444,7 +454,7 @@ def item_update(request: HttpRequest, item_id: int) -> JsonResponse:
         # Get final image URL (prefer primary ItemImage)
         final_image_url = get_image_url(request, item)
         images = [
-            request.build_absolute_uri(img.image.url)
+            build_absolute_url(request, img.image.url)
             for img in item.images.all()
         ]
         
@@ -572,7 +582,7 @@ def item_detail(request: HttpRequest, item_id: int) -> JsonResponse:
             bidder_profile, _ = Profile.objects.get_or_create(user=b.bidder)
             bidder_profile_image = ''
             if bidder_profile.profile_image:
-                bidder_profile_image = request.build_absolute_uri(bidder_profile.profile_image.url)
+                bidder_profile_image = build_absolute_url(request, bidder_profile.profile_image.url)
             
             bids_data.append({
                 'id': b.id,
@@ -588,14 +598,14 @@ def item_detail(request: HttpRequest, item_id: int) -> JsonResponse:
             asker_profile, _ = Profile.objects.get_or_create(user=q.asker)
             asker_profile_image = ''
             if asker_profile.profile_image:
-                asker_profile_image = request.build_absolute_uri(asker_profile.profile_image.url)
+                asker_profile_image = build_absolute_url(request, asker_profile.profile_image.url)
             
             replies_data = []
             for r in q.replies.order_by('created_at'):
                 author_profile, _ = Profile.objects.get_or_create(user=r.author)
                 author_profile_image = ''
                 if author_profile.profile_image:
-                    author_profile_image = request.build_absolute_uri(author_profile.profile_image.url)
+                    author_profile_image = build_absolute_url(request, author_profile.profile_image.url)
                 
                 replies_data.append({
                     'id': r.id,
@@ -619,7 +629,7 @@ def item_detail(request: HttpRequest, item_id: int) -> JsonResponse:
         # Images (prefer ItemImage primary)
         image_url = get_image_url(request, item)
         images = [
-            request.build_absolute_uri(img.image.url)
+            build_absolute_url(request, img.image.url)
             for img in item.images.all()
         ]
 
@@ -627,7 +637,7 @@ def item_detail(request: HttpRequest, item_id: int) -> JsonResponse:
         owner_profile, _ = Profile.objects.get_or_create(user=item.owner)
         owner_profile_image = ''
         if owner_profile.profile_image:
-            owner_profile_image = request.build_absolute_uri(owner_profile.profile_image.url)
+            owner_profile_image = build_absolute_url(request, owner_profile.profile_image.url)
 
         return JsonResponse({
             'id': item.id,
