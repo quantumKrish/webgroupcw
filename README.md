@@ -18,7 +18,7 @@ A Django + Vue.js auction web application (eBay-like) where users can create acc
 
 ## Deployed Application
 
-**URL**: https://auction-app-web-apps-ec22888.apps.a.comp-teach.qmul.ac.uk/
+**URL**: https://auction-app-web-apps-ec22888.apps.a.comp-teach.qmul.ac.uk/other/
 
 ## Admin & Test Credentials
 
