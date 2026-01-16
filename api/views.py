@@ -113,7 +113,7 @@ def profile(request: HttpRequest):
             "first_name": user.first_name,
             "last_name": user.last_name,
             "date_of_birth": profile.date_of_birth or "",
-            "profile_image_url": clean_url(profile_image_url),
+            "profile_image_url": "gooch",
         })
 
     # POST method - update profile
@@ -142,7 +142,7 @@ def profile(request: HttpRequest):
             "first_name": user.first_name,
             "last_name": user.last_name,
             "date_of_birth": str(profile.date_of_birth) if profile.date_of_birth else "",
-            "profile_image_url": clean_url(profile_image_url),
+            "profile_image_url": "gooch",
         })
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
@@ -173,7 +173,7 @@ def user_info(request: HttpRequest):
         'id': user.id,
         'username': user.username,
         'email': user.email,
-        'profile_image_url': clean_url(profile_image_url),
+        'profile_image_url': "gooch",
         'authenticated': True,
         'won_items': won_items,
     })
@@ -233,7 +233,7 @@ def user_profile_display(request: HttpRequest, user_id: int) -> JsonResponse:
                 'first_name': user.first_name,
                 'last_name': user.last_name,
                 'date_of_birth': str(profile.date_of_birth) if profile.date_of_birth else '',
-                'profile_image_url': clean_url(profile_image_url),
+                'profile_image_url': "gooch",
             },
             'items': items_data,
             'bids': bids_data,
