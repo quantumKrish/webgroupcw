@@ -149,6 +149,9 @@ INTERNAL_IPS = ['127.0.0.1']
 STORAGES = {
     "default": {
         "BACKEND": "storages.backends.s3boto3.S3Boto3Storage"
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
     }
 }
 
