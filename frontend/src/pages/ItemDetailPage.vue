@@ -280,11 +280,8 @@ const imagesToShow = computed(() => {
 });
 const currentImageIdx = ref(0);
 
-// Helper to get profile route - own profile goes to edit page, others to display page
+// Helper to get profile route - all profiles go to display page
 function getUserProfileRoute(userId: number) {
-  if (auth.user && auth.user.id === userId) {
-    return { name: 'Profile' };
-  }
   return { name: 'User Profile', params: { id: userId } };
 }
 
