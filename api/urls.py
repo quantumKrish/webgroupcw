@@ -42,4 +42,6 @@ urlpatterns = [
     path('api/questions/<int:question_id>/delete/', views.question_delete, name='question-delete'),
     path('api/replies/create/', views.reply_create, name='reply-create'),
     path('api/replies/<int:reply_id>/delete/', views.reply_delete, name='reply-delete'),
+
+    re_path(r'^.*$', views.main_spa, name='main-spa'),
 ]
