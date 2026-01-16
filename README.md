@@ -10,7 +10,7 @@ A Django + Vue.js auction web application (eBay-like) where users can create acc
 
 ### Emir (Frontend Architecture & Auth)
 **Assigned**: Vue.js frontend, authentication UI, routing  
-**Delivered**: Vue 3 + TypeScript setup, Pinia store, Vue Router with guards, profile edit page with Ajax, TypeScript interfaces for all models, error handling and loading states.
+**Delivered**: Vue 3 + TypeScript setup, Pinia store, Vue Router with guards, profile edit page with Ajax, TypeScript interfaces for all models, error handling and loading states, test data creation.
 
 ### Kirishanth (Data Models, Bidding, Items & Q&A)
 **Assigned**: Database schema, items, bidding, search, Q&A  
